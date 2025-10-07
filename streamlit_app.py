@@ -123,16 +123,22 @@ elif page == "Repertorio":
             st.markdown('</div>', unsafe_allow_html=True)
 
 elif page == "Nosotros":
-    st.title("Nosotros")
-    st.write("""
-**Benessere** es una cadena de snacks saludables en campus universitarios. Estamos en la
-*Universidad Privada del Valle* y venimos a servirte de la mejor manera: rápido, fresco y con
-una estética que te inspira a cuidarte.
+    st.title("Nuestro equipo")
+    st.write("Conoce a las personas detrás de Benessere. Energía, servicio y buena vibra todos los días en la Univalle.")
 
-Nuestro repertorio se centra en bowls de **Açaí Zero** en dos tamaños (120g y 180g),
-ensaladas completas, cereales y jugos 100% naturales. Ingredientes reales, porciones honestas y precios justos.
-    """)
-    _safe_image("juices.jpg", width=420); _safe_image("bowl2.jpg", width=420)
+    team = [
+        {"name": "Andrea", "role": "Atención & Operaciones", "img": "team_1.jpg"},
+        {"name": "Carlos", "role": "Bar & Preparación", "img": "team_2.jpg"},
+        {"name": "Gustavo", "role": "Gestión & Marca", "img": "team_3.jpg"},
+    ]
+
+    cols = st.columns(3)
+    for i, m in enumerate(team):
+        with cols[i % 3]:
+            _safe_image(m["img"], use_column_width=True)
+            st.markdown(f"**{m['name']}**")
+            st.caption(m["role"])
+
 
 elif page == "Ubicación":
     st.title("Ubicación")

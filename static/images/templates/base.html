@@ -1,0 +1,52 @@
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Benessere</title>
+    <meta name="description" content="Bowls, ensaladas y cereales. Bienestar que se come.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </head>
+  <body>
+    <header class="nav">
+      <a class="brand" href="/">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Benessere" />
+        <span>Benessere</span>
+      </a>
+      <nav>
+        <a href="/marca">Marca</a><a href="/nosotros">Nosotros</a>
+        <a href="/menu">Repertorio</a>
+        <a href="/ubicacion">Ubicación</a>
+        <a href="/detalles">Más detalles</a>
+        <a class="cta" href="https://wa.me/59176073314" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+      </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <h4>Benessere</h4>
+          <p>Bowls, ensaladas y cereales hechos con ingredientes reales.</p>
+        </div>
+        <div>
+          <h4>Contacto</h4>
+          <p>Instagram / TikTok: @benessere</p>
+          <p>WhatsApp: +591 760 73314</p>
+        </div>
+        <div>
+          <h4>Horario</h4>
+          <p>Lun–Sáb: 9:00–21:00</p>
+          <p>Dom: 9:00–21:00</p>
+        </div>
+      </div>
+      <div class="copy">© {{ 2025 }} Benessere — Todos los derechos reservados.</div>
+    </footer>
+  </body>
+</html>

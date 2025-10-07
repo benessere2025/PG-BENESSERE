@@ -1,0 +1,16 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="section narrow">
+  <h1>Nuestra marca</h1>
+  <p>Benessere es simplicidad y bienestar. Colores morado profundo y lila transmiten calma y foco, con tipografía contemporánea.</p>
+  <div class="brand-grid">
+    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo Benessere">
+    <div class="tokens">
+      <div><strong>Primario</strong><span class="chip chip-primary">#2E0647</span></div>
+      <div><strong>Secundario</strong><span class="chip chip-accent">#7C4DFF</span></div>
+      <div><strong>Neutro</strong><span class="chip chip-neutral">#F4F4F7</span></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

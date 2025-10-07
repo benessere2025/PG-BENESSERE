@@ -71,7 +71,7 @@ def _safe_image(filename: str, **kwargs):
 
 MENU = load_menu()
 
-st.sidebar.image(_find_image("logo.jpg"), width=140), width=140)
+st.sidebar.image(_find_image("logo.jpg"), width=140)
 page = st.sidebar.radio("Navegación", ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Más detalles"])
 st.sidebar.markdown(
     '<div class="btn"><a target="_blank" href="https://wa.me/59176073314?text=Hola,%20quiero%20pedir%20un%20Açaí%20Zero%20180g%20y%20un%20Açaí%20Zero%20120g.">Pedir por WhatsApp</a></div>',

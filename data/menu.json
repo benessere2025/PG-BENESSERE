@@ -1,0 +1,50 @@
+{
+  "bowls": [
+    {
+      "name": "Açaí Zero 180g",
+      "desc": "Açaí sin azúcar + toppings. Tamaño M.",
+      "price": 30
+    },
+    {
+      "name": "Açaí Zero 120g",
+      "desc": "Açaí sin azúcar + toppings. Tamaño S.",
+      "price": 25
+    }
+  ],
+  "ensaladas": [
+    {
+      "name": "Benessere Verde",
+      "desc": "Mix de hojas, pollo, quinoa, vinagreta",
+      "price": 32
+    },
+    {
+      "name": "Mediterránea",
+      "desc": "Tomate, pepino, aceitunas, feta",
+      "price": 31
+    }
+  ],
+  "cereales": [
+    {
+      "name": "Granola Casera",
+      "desc": "Avena, frutos secos, miel",
+      "price": 18
+    },
+    {
+      "name": "Overnight Oats",
+      "desc": "Avena, chía, yogur",
+      "price": 20
+    }
+  ],
+  "bebidas": [
+    {
+      "name": "Jugo Natural 350 ml",
+      "desc": "Fruta 100% | vaso S",
+      "price": 7
+    },
+    {
+      "name": "Jugo Natural 600 ml",
+      "desc": "Fruta 100% | vaso M",
+      "price": 9
+    }
+  ]
+}

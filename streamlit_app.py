@@ -8,6 +8,30 @@ ROOT = Path(__file__).parent
 IMG = ROOT / "static" / "images"
 MENU_PATH = ROOT / "data" / "menu.json"
 
+import sys
+
+def load_menu():
+    candidates = [
+        MENU_PATH,
+        Path.cwd() / "data" / "menu.json",
+        ROOT / "data" / "menu.json",
+    ]
+    for p in candidates:
+        if p.exists():
+            with open(p, "r", encoding="utf-8") as f:
+                return json.load(f)
+    # Fallback default menu if file not found
+    return {
+        "bowls":[
+            {"name":"Açaí Zero 180g", "desc":"Açaí sin azúcar + toppings. Tamaño M.", "price":30},
+            {"name":"Açaí Zero 120g", "desc":"Açaí sin azúcar + toppings. Tamaño S.", "price":25},
+        ],
+        "bebidas":[
+            {"name":"Jugo Natural 350 ml","desc":"Fruta 100% | vaso S","price":7},
+            {"name":"Jugo Natural 600 ml","desc":"Fruta 100% | vaso M","price":9},
+        ]
+    }
+
 st.set_page_config(page_title="Benessere", page_icon=str(IMG/"logo.jpg"), layout="wide")
 
 st.markdown("""
@@ -26,8 +50,7 @@ hr{border: none; border-top: 1px solid #2a1b40;}
 </style>
 """, unsafe_allow_html=True)
 
-with open(MENU_PATH, "r", encoding="utf-8") as f:
-    MENU = json.load(f)
+MENU = load_menu()
 
 st.sidebar.image(str(IMG/"logo.jpg"), width=140)
 page = st.sidebar.radio("Navegación", ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Más detalles"])

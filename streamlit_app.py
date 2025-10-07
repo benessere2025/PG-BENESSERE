@@ -50,9 +50,28 @@ hr{border: none; border-top: 1px solid #2a1b40;}
 </style>
 """, unsafe_allow_html=True)
 
+def _find_image(filename: str):
+    candidates = [
+        IMG / filename,
+        Path.cwd() / "static" / "images" / filename,
+        ROOT / "static" / "images" / filename,
+        Path(filename)
+    ]
+    for p in candidates:
+        if p.exists():
+            return str(p)
+    return None
+
+def _safe_image(filename: str, **kwargs):
+    p = _find_image(filename)
+    if p:
+        st.image(p, **kwargs)
+    else:
+        st.info(f"[imagen no encontrada: {filename}]")
+
 MENU = load_menu()
 
-st.sidebar.image(str(IMG/"logo.jpg"), width=140)
+st.sidebar.image(_find_image("logo.jpg"), width=140), width=140)
 page = st.sidebar.radio("Navegación", ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Más detalles"])
 st.sidebar.markdown(
     '<div class="btn"><a target="_blank" href="https://wa.me/59176073314?text=Hola,%20quiero%20pedir%20un%20Açaí%20Zero%20180g%20y%20un%20Açaí%20Zero%20120g.">Pedir por WhatsApp</a></div>',
@@ -67,7 +86,7 @@ if page == "Inicio":
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
         st.markdown('<div class="btn"><a href="?Repertorio">Ver repertorio</a></div>', unsafe_allow_html=True)
     with col2:
-        st.image(str(IMG/"bowl2.jpg"), use_column_width=True)
+        _safe_image("bowl2.jpg", use_column_width=True)
     st.markdown("### Destacados")
     cols = st.columns(4)
     sample = []
@@ -77,7 +96,7 @@ if page == "Inicio":
         with cols[i]:
             st.markdown(f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
                         f'<span class="price">Bs {it["price"]:.2f}</span></div>', unsafe_allow_html=True)
-    st.image([str(IMG/"kiosk.jpg"), str(IMG/"bowl.jpg")], width=360)
+    _safe_image("kiosk.jpg", width=360); _safe_image("bowl.jpg", width=360)
 
 elif page == "Repertorio":
     st.title("Repertorio")
@@ -99,7 +118,7 @@ una estética que te inspira a cuidarte.
 Nuestro repertorio se centra en bowls de **Açaí Zero** en dos tamaños (120g y 180g),
 ensaladas completas, cereales y jugos 100% naturales. Ingredientes reales, porciones honestas y precios justos.
     """)
-    st.image([str(IMG/"juices.jpg"), str(IMG/"bowl2.jpg")], width=420)
+    _safe_image("juices.jpg", width=420); _safe_image("bowl2.jpg", width=420)
 
 elif page == "Ubicación":
     st.title("Ubicación")

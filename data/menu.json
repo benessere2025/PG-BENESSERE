@@ -11,16 +11,6 @@
       "price": 25
     }
   ],
-  "ensaladas": [
-    {
-      "name": "Benessere Verde",
-      "desc": "Mix de hojas, pollo, quinoa, vinagreta",
-      "price": 32
-    },
-    {
-      "name": "Mediterránea",
-      "desc": "Tomate, pepino, aceitunas, feta",
-      "price": 31
     }
   ],
   "cereales": [

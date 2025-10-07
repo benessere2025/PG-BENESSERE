@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="section narrow">
+  <h1>Nosotros</h1>
+  <p><strong>Benessere</strong> es una cadena de snacks saludables en campus universitarios. Estamos presentes en la <em>Universidad Privada del Valle</em> y venimos a servirte de la mejor manera: rápido, fresco y con una estética que te inspira a cuidarte.</p>
+  <p>Nuestro repertorio incluye Açaí <strong>Zero</strong> como producto estrella, ensaladas completas, cereales y jugos 100% naturales en dos tamaños (350 ml y 600 ml). Elegimos ingredientes reales, porciones honestas y procesos eficientes para mantener precios justos sin sacrificar calidad.</p>
+  <p>Creemos en hacer fácil comer bien mientras estudias o trabajas. Si eres parte de Univalle, pásate por nuestro kiosco y vive la experiencia <strong>Benessere</strong>.</p>
+  <div class="gallery">
+    <img src="{{ url_for('static', filename='images/juices.jpg') }}" alt="Jugos naturales">
+    <img src="{{ url_for('static', filename='images/bowl2.jpg') }}" alt="Açaí Benessere">
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="section narrow">
+  <h1>Ubicación</h1>
+  <p>Benessere — Campus <strong>Universidad Privada del Valle</strong>.</p>
+  <div class="map-placeholder" style="padding:0;border:none; height:auto;">
+    <iframe
+      src="https://www.google.com/maps?q=Universidad%20Privada%20del%20Valle&output=embed"
+      width="100%"
+      height="380"
+      style="border:0;border-radius:16px;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+  <div class="center"><a class="btn" href="https://www.google.com/maps/search/?api=1&query=Universidad%20Privada%20del%20Valle" target="_blank" rel="noopener">Abrir en Google Maps</a></div>
+  <p class="center">Horario: <strong>9:00 – 21:00</strong> todos los días.</p>
+</section>
+{% endblock %}

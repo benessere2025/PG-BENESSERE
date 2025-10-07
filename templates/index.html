@@ -1,0 +1,54 @@
+
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <h1>Bienestar que se come</h1>
+    <p>Açaí Zero, ensaladas y cereales con una estética limpia y un sabor brutal.</p>
+    <div class="hero-cta">
+      <a href="/menu" class="btn">Ver repertorio</a>
+      <a href="https://wa.me/0000000000" class="btn ghost" target="_blank" rel="noopener">Pedir por WhatsApp</a>
+    </div>
+  </div>
+  <img class="hero-img" src="{{ url_for('static', filename='images/bowl.jpg') }}" alt="Bowl Benessere">
+</section>
+
+<section class="panels">
+  <article>
+    <h3>Nuestra marca</h3>
+    <p>Minimalista, saludable y aspiracional. Benessere combina nutrición con una experiencia de diseño premium.</p>
+    <a href="/marca">Conocer</a>
+  </article>
+  <article>
+    <h3>Repertorio</h3>
+    <p>Bowls, ensaladas, cereales y bebidas. Todo pensado para energizarte.</p>
+    <a href="/menu">Explorar</a>
+  </article>
+  <article>
+    <h3>Ubicación</h3>
+    <p>Estamos en tu campus/barrio favorito. Revisa cómo llegar y horarios.</p>
+    <a href="/ubicacion">Llegar</a>
+  </article>
+</section>
+
+<section class="menu-preview">
+  <h2>Destacados</h2>
+  <div class="cards">
+    {% for cat, items in menu.items() %}
+      {% for it in items[:2] %}
+      <div class="card">
+        <h4>{{ it.name }}</h4>
+        <p>{{ it.desc }}</p>
+        <span class="price">Bs {{ "%.2f"|format(it.price) }}</span>
+      </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="center"><a href="/menu" class="btn">Ver todo el menú</a></div>
+</section>
+
+<section class="gallery">
+  <img src="{{ url_for('static', filename='images/kiosk.jpg') }}" alt="Kiosco Benessere">
+  <img src="{{ url_for('static', filename='images/bowl.jpg') }}" alt="Bowl Benessere">
+</section>
+{% endblock %}

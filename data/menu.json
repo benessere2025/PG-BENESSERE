@@ -1,40 +1,17 @@
 {
   "bowls": [
-    {
-      "name": "Açaí Zero 180g",
-      "desc": "Açaí sin azúcar + toppings. Tamaño M.",
-      "price": 30
-    },
-    {
-      "name": "Açaí Zero 120g",
-      "desc": "Açaí sin azúcar + toppings. Tamaño S.",
-      "price": 25
-    }
+    { "name": "Açaí Zero 180g", "desc": "Açaí sin azúcar + toppings. Tamaño M.", "price": 30, "img": "acai_180.jpg" },
+    { "name": "Açaí Zero 120g", "desc": "Açaí sin azúcar + toppings. Tamaño S.", "price": 25, "img": "acai_120.jpg" }
   ],
-    }
-  
   "cereales": [
-    {
-      "name": "Granola Casera",
-      "desc": "Avena, frutos secos, miel",
-      "price": 18
-    },
-    {
-      "name": "Overnight Oats",
-      "desc": "Avena, chía, yogur",
-      "price": 20
-    }
+    { "name": "Granola Casera", "desc": "Avena, frutos secos, miel", "price": 18, "img": "granola.jpg" },
+    { "name": "Overnight Oats", "desc": "Avena, chía, yogur", "price": 20, "img": "oats.jpg" }
   ],
   "bebidas": [
-    {
-      "name": "Jugo Natural 350 ml",
-      "desc": "Fruta 100% | vaso S",
-      "price": 7
-    },
-    {
-      "name": "Jugo Natural 600 ml",
-      "desc": "Fruta 100% | vaso M",
-      "price": 9
-    }
+    { "name": "Jugo Natural 350 ml", "desc": "Fruta 100% | vaso S", "price": 7, "img": "jugo_350.jpg" },
+    { "name": "Jugo Natural 600 ml", "desc": "Fruta 100% | vaso M", "price": 9, "img": "jugo_600.jpg" }
+  ]
+}
+
   ]
 }

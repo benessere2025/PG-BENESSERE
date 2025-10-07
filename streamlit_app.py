@@ -101,11 +101,26 @@ elif page == "Repertorio":
     st.title("Repertorio")
     for cat, items in MENU.items():
         st.subheader(cat.capitalize())
-        cols = st.columns(3)
-        for i, it in enumerate(items):
-            with cols[i % 3]:
-                st.markdown(f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
-                            f'<span class="price">Bs {it["price"]:.2f}</span></div>', unsafe_allow_html=True)
+        for it in items:
+            # Tarjeta
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+
+            # Layout de dos columnas: imagen (1) + texto (2)
+            c1, c2 = st.columns([1, 2])
+
+            with c1:
+                # Muestra la imagen que viene de menu.json (clave "img")
+                _safe_image(it.get("img", ""), use_column_width=True)
+
+            with c2:
+                st.markdown(f"### {it['name']}")
+                st.write(it["desc"])
+                st.markdown(
+                    f'<span class="price">Bs {it["price"]:.2f}</span>',
+                    unsafe_allow_html=True
+                )
+
+            st.markdown('</div>', unsafe_allow_html=True)
 
 elif page == "Nosotros":
     st.title("Nosotros")

@@ -183,9 +183,16 @@ def add_points(u, db, pts, reason=""):
     )
 
 def ensure_daily(u):
-    d = u["daily"].get(_today_str()) or {"steps_done": False, "water_done": False, "checkin": False}
+    d = u["daily"].get(_today_str()) or {
+        "steps_done": False,
+        "water_done": False,   # se mantiene por compatibilidad, ya no se usa
+        "checkin": False,
+        "gym_done": False,     # NUEVO
+        "food_done": False     # NUEVO
+    }
     u["daily"][_today_str()] = d
     return d
+
 
 def can_spin_today(u):
     last = u.get("last_spin")
@@ -277,6 +284,101 @@ def is_happy_hour():
     now = _now()
     return HAPPY_HOUR[0] <= now.hour < HAPPY_HOUR[1]
 # ===========================================================
+# ========= Helpers de ruleta (HTML/CSS animado) =========
+def build_wheel_html(labels, active_angle_deg=0):
+    n = len(labels)
+    colors = ["#7C4DFF", "#9A6BFF"]  # alterna
+    # fondo como conic-gradient
+    stops = []
+    step = 360 / n
+    for i, _ in enumerate(labels):
+        a0 = i * step
+        a1 = (i + 1) * step
+        c = colors[i % 2]
+        stops.append(f"{c} {a0}deg {a1}deg")
+    gradient = ", ".join(stops)
+    # HTML + CSS con animación hacia el ángulo deseado
+    html_code = f"""
+    <style>
+    .wheel-wrap {{
+        position: relative; width: 320px; height: 320px; margin: 0 auto;
+    }}
+    .wheel {{
+        width: 100%; height: 100%; border-radius: 50%;
+        border: 10px solid #2a1b40;
+        background: conic-gradient({gradient});
+        transition: transform 3.2s cubic-bezier(.17,.67,.29,1.27);
+        transform: rotate(-{active_angle_deg}deg);
+        box-shadow: 0 10px 22px rgba(0,0,0,.35);
+    }}
+    .pointer {{
+        position: absolute; left: 50%; top: -8px; transform: translateX(-50%);
+        width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
+        border-bottom: 22px solid #ECE8F7; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
+    }}
+    .labels {{ position: absolute; inset: 0; }}
+    .label {{
+        position: absolute; left: 50%; top: 50%; transform-origin: 0 0;
+        color: #0f0718; font-weight: 800; font-size: 12px; text-shadow: 0 1px 0 rgba(255,255,255,.35);
+    }}
+    </style>
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <div class="wheel"></div>
+      <div class="labels">
+        {''.join([f'<div class="label" style="transform: rotate({(i*step)+(step/2)}deg) translate(100px) rotate(90deg);">{labels[i]}</div>' for i in range(n)])}
+      </div>
+    </div>
+    """
+    return html_code
+# ========================================================
+
+# ========= Chequeos simples de imagen (beta, sin romper) =========
+def _try_import_pil_numpy():
+    try:
+        from PIL import Image, ImageStat
+        import numpy as np
+        return Image, ImageStat, np
+    except Exception:
+        return None, None, None
+
+def verify_gym_photo(file) -> bool:
+    """Heurística básica: resolución mínima + nitidez/contraste (proxy).
+       Si PIL/Numpy no disponible, devolvemos True para no romper UX."""
+    Image, ImageStat, np = _try_import_pil_numpy()
+    if not Image:  # fallback
+        return True
+    try:
+        img = Image.open(file).convert("RGB")
+        if img.width < 300 or img.height < 300:
+            return False
+        # varianza de luminancia como proxy de 'real / no captura borrosa'
+        gray = img.convert("L")
+        arr = np.array(gray, dtype=np.float32)
+        var = float(arr.var())
+        return var > 300.0
+    except Exception:
+        return False
+
+def verify_healthy_food(file) -> bool:
+    """Heurística: proporción de verdes/colores naturales + saturación general."""
+    Image, ImageStat, np = _try_import_pil_numpy()
+    if not Image:
+        return True
+    try:
+        img = Image.open(file).convert("RGB").resize((256,256))
+        arr = np.asarray(img) / 255.0
+        r,g,b = arr[:,:,0], arr[:,:,1], arr[:,:,2]
+        # 'verde saludable' proxy: g alto y g > r y g > b
+        green_mask = (g > 0.35) & (g > r+0.05) & (g > b+0.05)
+        green_ratio = green_mask.mean()
+        # saturación aproximada
+        maxc = arr.max(axis=2); minc = arr.min(axis=2)
+        sat = (maxc - minc).mean()
+        return (green_ratio > 0.20 and sat > 0.15)
+    except Exception:
+        return False
+# ================================================================
 
 
 def _safe_image(filename: str, **kwargs):
@@ -424,6 +526,117 @@ elif page == "Recompensas":
 
     u = current_user
     st.subheader(f"Tus puntos: {u['points']}")
+    if is_happy_hour():
+        st.success("⏰ **Happy Hour** activo: ¡descuentos especiales en tienda por 1 hora!")
+
+    # ---------- Retos diarios ----------
+    st.markdown("### Retos diarios")
+
+    d = ensure_daily(u)
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        # Pasos (conexión futura a Apple/Samsung; por ahora manual)
+        steps = st.number_input("Pasos de hoy", min_value=0, value=0, step=500)
+        if st.button("Confirmar 7.000 pasos"):
+            ok, msg = log_steps(u, db, int(steps))
+            st.success("Reto completado +30 pts") if ok else st.error(msg)
+        with st.expander("Conectar Apple/Samsung (próximamente)"):
+            st.info("Para verificar pasos automáticamente se requiere app nativa (iOS/Android) "
+                    "con permisos HealthKit (Apple) o Samsung Health. En web no se puede acceder "
+                    "a estos datos por seguridad. Dejamos UI lista para conexión futura.")
+
+    with c2:
+        # NUEVO: Foto gym/actividad física
+        st.caption("Sube foto en el gym o haciendo actividad física")
+        gym_file = st.file_uploader("Foto de actividad física", type=["jpg","jpeg","png"], key="gym_up")
+        if st.button("Validar foto de actividad"):
+            d = ensure_daily(u)
+            if d["gym_done"]:
+                st.info("Este reto ya está completado hoy.")
+            elif not gym_file:
+                st.error("Sube una foto primero.")
+            else:
+                ok = verify_gym_photo(gym_file)
+                if ok:
+                    d["gym_done"] = True
+                    add_points(u, db, 30, "Reto diario: actividad física (foto)")
+                    st.success("Foto válida ✔ +30 pts")
+                else:
+                    st.error("No parece una foto válida de actividad física. Intenta otra.")
+
+    with c3:
+        # NUEVO: Foto de snack/comida saludable
+        st.caption("Sube foto de snack/comida saludable")
+        food_file = st.file_uploader("Foto de comida saludable", type=["jpg","jpeg","png"], key="food_up")
+        if st.button("Validar comida saludable"):
+            d = ensure_daily(u)
+            if d["food_done"]:
+                st.info("Este reto ya está completado hoy.")
+            elif not food_file:
+                st.error("Sube una foto primero.")
+            else:
+                ok = verify_healthy_food(food_file)
+                if ok:
+                    d["food_done"] = True
+                    add_points(u, db, 30, "Reto diario: comida saludable (foto)")
+                    st.success("¡Se ve saludable! ✔ +30 pts")
+                else:
+                    st.error("No parece una comida saludable (según verificación básica). Intenta otra.")
+
+    # ---------- Ruleta del bienestar (ANIMADA) ----------
+    st.markdown("### Ruleta del bienestar (diaria)")
+    labels = [r["label"] for r in SPIN_REWARDS]
+    spin_state = st.session_state.get("spin_state", {"angle": 0, "idx": None, "label": None})
+
+    colA, colB = st.columns([1,1])
+    with colA:
+        # Render rueda con el ángulo actual (si giró, muestra animación a ese ángulo)
+        st.components.v1.html(build_wheel_html(labels, spin_state["angle"]), height=380)
+
+    with colB:
+        if can_spin_today(u):
+            if st.button("🎡 Girar la ruleta"):
+                # Elegimos premio ponderado y calculamos ángulo exacto de llegada
+                weights = [r.get("w", 1) for r in SPIN_REWARDS]
+                prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]
+                idx = labels.index(prize["label"])
+                n = len(labels); step = 360 / n
+                center = idx * step + (step/2)
+                angle = 360*4 + center  # 4 vueltas completas + caer al centro del premio
+
+                # Aplicamos recompensa
+                if prize["points"]:
+                    add_points(u, db, prize["points"], "Ruleta diaria")
+                if prize["coupon"]:
+                    u.setdefault("coupons", []).append({
+                        "code": prize["coupon"],
+                        "ts": _now().isoformat(),
+                        "source": "Ruleta"
+                    })
+                u["last_spin"] = _now().isoformat()
+
+                # Guardamos para renderizar animación
+                spin_state = {"angle": angle, "idx": idx, "label": prize["label"]}
+                st.session_state["spin_state"] = spin_state
+                _save_db(db)
+                st.rerun()
+        else:
+            st.info("Ya giraste hoy. Vuelve mañana ✨")
+
+        if spin_state["label"]:
+            st.success(f"Resultado: **{spin_state['label']}**")
+
+    # ---------- Tus cupones ----------
+    st.markdown("### Tus cupones")
+    if u.get("coupons"):
+        for c in u["coupons"]:
+            st.write(f"- `{c['code']}` (origen: {c['source']})")
+    else:
+        st.caption("Sin cupones todavía.")
+
+    _save_db(db)
+
     if is_happy_hour():
         st.success("⏰ **Happy Hour** activo: ¡descuentos especiales en tienda por 1 hora!")
 

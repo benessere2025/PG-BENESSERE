@@ -85,7 +85,7 @@ if page == "Inicio":
         st.title("Bienestar que se come")
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
     with col2:
-        _safe_image("bowl2.jpg", use_column_width=True)
+        _safe_image("bowl2.jpg", use_container_width=True
     st.markdown("### Destacados")
     cols = st.columns(4)
     sample = []
@@ -110,7 +110,7 @@ elif page == "Repertorio":
 
             with c1:
                 # Muestra la imagen que viene de menu.json (clave "img")
-                _safe_image(it.get("img", ""), use_column_width=True)
+                _safe_image(it.get("img", ""),use_container_width=True
 
             with c2:
                 st.markdown(f"### {it['name']}")
@@ -137,7 +137,7 @@ elif page == "Nosotros":
     cols = st.columns(3)
     for i, m in enumerate(team):
         with cols[i % 3]:
-            _safe_image(m["img"], use_column_width=True)
+            _safe_image(m["img"], use_container_width=True
             st.markdown(f"**{m['name']}**")
             st.caption(m["role"])
 

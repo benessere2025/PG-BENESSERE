@@ -642,23 +642,45 @@ elif page == "Recompensas":
 
     # ---- Retos diarios ----
     st.markdown("### Retos diarios")
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        steps = st.number_input("Pasos de hoy", min_value=0, value=0, step=500)
-        if st.button("Marcar 7000 pasos"):
-            ok, msg = log_steps(u, db, int(steps))
-            st.success("Reto completado +30 pts") if ok else st.error(msg)
-    with c2:
-        water = st.number_input("Litros de agua hoy", min_value=0.0, value=0.0, step=0.25, format="%.2f")
-        if st.button("Marcar 2L de agua"):
-            ok, msg = log_water(u, db, float(water))
-            st.success("Reto completado +30 pts") if ok else st.error(msg)
-    with c3:
-        st.caption("Check-in en el local (usa el QR del kiosco)")
-        code_in = st.text_input("Código de check-in", placeholder="Escanea el QR y pega el código")
-        if st.button("Registrar check-in"):
-            ok, msg = checkin(u, db, code_in)
-            st.success("Check-in registrado +20 pts") if ok else st.error(msg)
+  # ---- Pasos ----
+steps = st.number_input("Pasos de hoy", min_value=0, value=0, step=500, key="daily_steps_input")
+if st.button("Confirmar 7.000 pasos", key="btn_steps_confirm"):
+    ok, msg = log_steps(u, db, int(steps))
+    st.success("Reto completado +30 pts") if ok else st.error(msg)
+
+# ---- Foto gym/actividad física ----
+gym_file = st.file_uploader("Foto de actividad física", type=["jpg","jpeg","png"], key="upload_gym_photo")
+if st.button("Validar foto de actividad", key="btn_validate_gym"):
+    d = ensure_daily(u)
+    if d["gym_done"]:
+        st.info("Este reto ya está completado hoy.")
+    elif not gym_file:
+        st.error("Sube una foto primero.")
+    else:
+        ok = verify_gym_photo(gym_file)
+        if ok:
+            d["gym_done"] = True
+            add_points(u, db, 30, "Reto diario: actividad física (foto)")
+            st.success("Foto válida ✔ +30 pts")
+        else:
+            st.error("No parece una foto válida de actividad física. Intenta otra.")
+
+# ---- Foto comida saludable ----
+food_file = st.file_uploader("Foto de comida saludable", type=["jpg","jpeg","png"], key="upload_food_photo")
+if st.button("Validar comida saludable", key="btn_validate_food"):
+    d = ensure_daily(u)
+    if d["food_done"]:
+        st.info("Este reto ya está completado hoy.")
+    elif not food_file:
+        st.error("Sube una foto primero.")
+    else:
+        ok = verify_healthy_food(food_file)
+        if ok:
+            d["food_done"] = True
+            add_points(u, db, 30, "Reto diario: comida saludable (foto)")
+            st.success("¡Se ve saludable! ✔ +30 pts")
+        else:
+            st.error("No parece una comida saludable (según verificación básica). Intenta otra.")
 
     # ---- Ruleta del bienestar ----
     st.markdown("### Ruleta del bienestar (diaria)")

@@ -85,7 +85,8 @@ if page == "Inicio":
         st.title("Bienestar que se come")
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
     with col2:
-        _safe_image("bowl2.jpg", use_container_width=True
+      _safe_image("bowl2.jpg", use_container_width=True)
+
     st.markdown("### Destacados")
     cols = st.columns(4)
     sample = []

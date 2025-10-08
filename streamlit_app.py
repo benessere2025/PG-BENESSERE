@@ -105,12 +105,28 @@ CHECKIN_CODE = "BENESSERE-CHECKIN"            # texto que mostrará el QR del ki
 HAPPY_HOUR = (15, 16)                         # 15:00–16:00
 
 SPIN_REWARDS = [
-    {"label":"🎟️ -10% en Açaí", "points":0, "coupon":"DESC10-ACAI"},
-    {"label":"🧃 -15% en Jugo",  "points":0, "coupon":"DESC15-JUGO"},
-    {"label":"⭐ +25 pts",       "points":25, "coupon":None},
-    {"label":"⭐ +50 pts",       "points":50, "coupon":None},
-    {"label":"🍓 Topping gratis","points":0, "coupon":"TOPPING-FREE"},
-    {"label":"🎉 +100 pts",      "points":100,"coupon":None},
+    # prob: 4%
+    {"label": "🎟️ -10% en Açaí",            "points": 0,   "coupon": "DESC10-ACAI",     "w": 4},
+    # prob: 6%
+    {"label": "🧃 -15% en Jugo",             "points": 0,   "coupon": "DESC15-JUGO",     "w": 6},
+    # prob: 30%
+    {"label": "🎉 +100 pts",                 "points": 100, "coupon": None,              "w": 30},
+    # prob: 5%
+    {"label": "💎 +500 pts",                 "points": 500, "coupon": None,              "w": 5},
+    # prob: 40%
+    {"label": "⭐ +75 pts",                  "points": 75,  "coupon": None,              "w": 40},
+    # prob: 5%
+    {"label": "🥣 -15% en Granola",          "points": 0,   "coupon": "DESC15-GRANOLA",  "w": 5},
+    # prob: 5%
+    {"label": "🥣 -15% en Overnight Oats",   "points": 0,   "coupon": "DESC15-OATS",     "w": 5},
+    # prob: 1%
+    {"label": "🍧 Açaí GRATIS",              "points": 0,   "coupon": "FREE-ACAI",       "w": 1},
+    # prob: 1%
+    {"label": "🧃 Jugo GRATIS",              "points": 0,   "coupon": "FREE-JUGO",       "w": 1},
+    # prob: 3%
+    {"label": "🥣 -50% en Granola",          "points": 0,   "coupon": "DESC50-GRANOLA",  "w": 3},
+]
+
 ]
 
 REDEEM_ITEMS = [
@@ -177,13 +193,19 @@ def can_spin_today(u):
 def spin(u, db):
     if not can_spin_today(u):
         return None, "Ya giraste hoy."
-    prize = random.choice(SPIN_REWARDS)
+    weights = [r.get("w", 1) for r in SPIN_REWARDS]
+    prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]
     if prize["points"]:
         add_points(u, db, prize["points"], "Ruleta diaria")
     if prize["coupon"]:
-        u["coupons"].append({"code": prize["coupon"], "ts": _now().isoformat(), "source":"Ruleta"})
+        u.setdefault("coupons", []).append({
+            "code": prize["coupon"],
+            "ts": _now().isoformat(),
+            "source": "Ruleta"
+        })
     u["last_spin"] = _now().isoformat()
     return prize, None
+
 
 def checkin(u, db, code: str):
     d = ensure_daily(u)

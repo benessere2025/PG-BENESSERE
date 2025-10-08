@@ -7,8 +7,7 @@ ROOT = Path(__file__).parent
 IMG = ROOT / "static" / "images"
 MENU_PATH = ROOT / "data" / "menu.json"
 
-import sys
-
+# --------------------- CARGAR MENÚ ---------------------
 def load_menu():
     candidates = [
         MENU_PATH,
@@ -19,7 +18,7 @@ def load_menu():
         if p.exists():
             with open(p, "r", encoding="utf-8") as f:
                 return json.load(f)
-    # Fallback default menu if file not found
+    # Fallback default
     return {
         "bowls":[
             {"name":"Açaí Zero 180g", "desc":"Açaí sin azúcar + toppings. Tamaño M.", "price":30},
@@ -31,9 +30,10 @@ def load_menu():
         ]
     }
 
+# --------------------- CONFIGURACIÓN ---------------------
 st.set_page_config(page_title="Benessere", page_icon=str(IMG/"logo.jpg"), layout="wide")
 
-# 🔧 CORREGIDO: un solo st.markdown con el CSS (el duplicado causaba el error)
+# --------------------- ESTILO PERSONALIZADO ---------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -58,17 +58,30 @@ p { color: var(--muted); }
 .card:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,.26); border-color:#3a2b57; }
 .price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
 
-/* Imagen de producto consistente */
-.product-img img{ border-radius: 12px; width: 120px; height: 120px; object-fit: cover; border:1px solid var(--border); }
+/* Imagen de producto */
+.product-img img{
+  border-radius: 12px;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border:1px solid var(--border);
+}
 
 /* Avatar equipo */
-.team-card img{ border-radius: 18px; width: 100%; height: 220px; object-fit: cover; border:1px solid var(--border); }
+.team-card img{
+  border-radius: 18px;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border:1px solid var(--border);
+}
 
 /* Limpieza UI Streamlit */
 #MainMenu, header, footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
+# --------------------- FUNCIONES ---------------------
 def _find_image(filename: str):
     candidates = [
         IMG / filename,
@@ -88,6 +101,7 @@ def _safe_image(filename: str, **kwargs):
     else:
         st.info(f"[imagen no encontrada: {filename}]")
 
+# --------------------- MENÚ LATERAL ---------------------
 MENU = load_menu()
 
 st.sidebar.image(_find_image("logo.jpg"), width=140)
@@ -98,6 +112,7 @@ st.sidebar.markdown(
 )
 st.sidebar.write("Horario: **9:00 – 21:00**")
 
+# --------------------- PÁGINAS ---------------------
 if page == "Inicio":
     col1, col2 = st.columns([1.2,1])
     with col1:
@@ -198,10 +213,10 @@ else:
     with st.expander("¿Personalización?"):
         st.write("Elige base, toppings y crunch a tu gusto.")
 
+# --------------------- BOTÓN WHATSAPP ---------------------
 st.markdown(
     '<a style="position:fixed;right:18px;bottom:18px;background:#25D366;color:#0b1a0f;'
     'padding:10px 14px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:9999;" '
     'href="https://wa.me/59176073314?text=Hola%20Benessere,%20quiero%20hacer%20un%20pedido" target="_blank">'
     'WhatsApp</a>', unsafe_allow_html=True
 )
-

@@ -302,24 +302,28 @@ def _wrap_label(txt: str, max_len=16):
     line2 = t[cut:].strip()
     return f"{line1}<br>{line2}"
 
-def build_wheel_html(labels, active_angle_deg=0):
-    """
-    Renderiza la rueda con:
-    - Segmentos alternando dos tonos.
-    - Texto centrado en cada porción, en 1–2 líneas, con buen contraste.
-    - Borde, sombra y hub central.
-    - Animación suave hacia el ángulo requerido.
-    """
+# ========= Ruleta con ANIMACIÓN + SONIDO (WebAudio) =========
+def _wrap_label(txt: str, max_len=16):
+    t = txt.strip()
+    if len(t) <= max_len:
+        return t
+    cut = t.rfind(" ", 0, max_len)
+    if cut == -1:
+        cut = max_len
+    return f"{t[:cut].strip()}<br>{t[cut:].strip()}"
+
+def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, sound=True):
     n = len(labels)
     step = 360 / n
-    # Paleta (marca Benessere)
-    colors = ["#8353FF", "#6E42E6"]  # alterna morados
-    ring   = "#2A1B40"               # borde
-    text_c = "#FFFFFF"               # texto
+    colors = ["#8353FF", "#6E42E6"]
+    ring   = "#2A1B40"
+    text_c = "#FFFFFF"
     pointer_c = "#ECE8F7"
     hub_bg = "#0F0718"
+    label_radius = 112
+    size = 340
 
-    # gradiente del círculo por segmentos
+    # fondo por sectores
     stops = []
     for i in range(n):
         a0 = i * step
@@ -328,31 +332,25 @@ def build_wheel_html(labels, active_angle_deg=0):
         stops.append(f"{c} {a0}deg {a1}deg")
     gradient = ", ".join(stops)
 
-    # etiquetas envueltas a 2 líneas cuando sea necesario
+    # etiquetas (autowrap)
     safe_labels = [_wrap_label(l, max_len=18) for l in labels]
-
-    # radio donde colocamos las etiquetas (ajusta para acercar/alejar del borde)
-    label_radius = 112  # px desde el centro
-    # tamaño de la rueda
-    size = 340
-
-    # construye divs de labels en posiciones correctas
     label_divs = []
     for i, txt in enumerate(safe_labels):
-        # centro angular del sector
-        center_deg = (i * step) + (step / 2)
-        # rotamos para “mirar” al borde, trasladamos hacia el radio y re-rotamos para que quede horizontal
+        center = (i * step) + (step / 2)
         label_divs.append(
             f'''
             <div class="label" style="
-                 transform: rotate({center_deg}deg)
+                 transform: rotate({center}deg)
                             translate({label_radius}px)
-                            rotate({-center_deg}deg);
+                            rotate({-center}deg);
             ">
               <span class="pill">{txt}</span>
             </div>
             '''
         )
+
+    sound_flag = "true" if sound else "false"
+    dur_sec = duration_ms / 1000.0
 
     html_code = f"""
     <style>
@@ -363,8 +361,8 @@ def build_wheel_html(labels, active_angle_deg=0):
         width: 100%; height: 100%; border-radius: 50%;
         border: 12px solid {ring};
         background: conic-gradient({gradient});
-        transition: transform 3.2s cubic-bezier(.17,.67,.29,1.27);
-        transform: rotate(-{active_angle_deg}deg);
+        /* sin transición inicial; la aplicamos vía JS */
+        transform: rotate(-{start_deg}deg);
         box-shadow: 0 14px 28px rgba(0,0,0,.35);
       }}
       .pointer {{
@@ -375,7 +373,6 @@ def build_wheel_html(labels, active_angle_deg=0):
         filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
         z-index: 3;
       }}
-      /* hub central para estética */
       .hub {{
         position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
         width: 86px; height: 86px; border-radius: 50%;
@@ -389,20 +386,14 @@ def build_wheel_html(labels, active_angle_deg=0):
         position: absolute; left: 50%; top: 50%;
         transform-origin: 0 0;
         font-weight: 800; font-size: 13px; line-height: 1.05; letter-spacing:.2px;
-        color: {text_c};
-        text-align: center;
-        z-index: 2;
+        color: {text_c}; text-align: center; z-index: 2;
       }}
       .label .pill {{
         display:inline-block; max-width: 120px;
         padding: 2px 8px; border-radius: 10px;
-        background: rgba(15,7,24,.35);          /* fondo semitransparente para contraste */
-        backdrop-filter: blur(1px);
-        text-shadow: 0 1px 1px rgba(0,0,0,.45);
+        background: rgba(15,7,24,.35); text-shadow: 0 1px 1px rgba(0,0,0,.45);
         white-space: normal;
       }}
-
-      /* Responsive (móviles) */
       @media (max-width: 480px) {{
         .wheel-wrap {{ width: 280px; height: 280px; }}
         .label {{ font-size: 12px; }}
@@ -412,47 +403,83 @@ def build_wheel_html(labels, active_angle_deg=0):
 
     <div class="wheel-wrap">
       <div class="pointer"></div>
-      <div class="wheel"></div>
+      <div id="wheel" class="wheel"></div>
       <div class="labels">
         {''.join(label_divs)}
       </div>
       <div class="hub"></div>
     </div>
-    """
-    return html_code
-# ========================================================
 
-    html_code = f"""
-    <style>
-    .wheel-wrap {{
-        position: relative; width: 320px; height: 320px; margin: 0 auto;
-    }}
-    .wheel {{
-        width: 100%; height: 100%; border-radius: 50%;
-        border: 10px solid #2a1b40;
-        background: conic-gradient({gradient});
-        transition: transform 3.2s cubic-bezier(.17,.67,.29,1.27);
-        transform: rotate(-{active_angle_deg}deg);
-        box-shadow: 0 10px 22px rgba(0,0,0,.35);
-    }}
-    .pointer {{
-        position: absolute; left: 50%; top: -8px; transform: translateX(-50%);
-        width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
-        border-bottom: 22px solid #ECE8F7; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35));
-    }}
-    .labels {{ position: absolute; inset: 0; }}
-    .label {{
-        position: absolute; left: 50%; top: 50%; transform-origin: 0 0;
-        color: #0f0718; font-weight: 800; font-size: 12px; text-shadow: 0 1px 0 rgba(255,255,255,.35);
-    }}
-    </style>
-    <div class="wheel-wrap">
-      <div class="pointer"></div>
-      <div class="wheel"></div>
-      <div class="labels">
-        {''.join([f'<div class="label" style="transform: rotate({(i*step)+(step/2)}deg) translate(100px) rotate(90deg);">{labels[i]}</div>' for i in range(n)])}
-      </div>
-    </div>
+    <script>
+      (function() {{
+        const soundOn = {sound_flag};
+        const duration = {duration_ms};
+        const end = -({end_deg});
+        const wheel = document.getElementById('wheel');
+
+        // ====== WebAudio: spin + pop ======
+        let ctx, spinOsc, spinGain;
+        function ensureCtx() {{
+          if (!ctx) {{
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) ctx = new AC();
+          }}
+          if (ctx && ctx.state === 'suspended') ctx.resume();
+        }}
+        function playSpin() {{
+          if (!soundOn) return;
+          ensureCtx();
+          if (!ctx) return;
+          spinOsc = ctx.createOscillator();
+          spinGain = ctx.createGain();
+          spinOsc.type = 'sawtooth';
+          // tono inicial
+          spinOsc.frequency.setValueAtTime(220, ctx.currentTime);
+          // volumen suave
+          spinGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+          spinGain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.2);
+          // conectamos
+          spinOsc.connect(spinGain).connect(ctx.destination);
+          spinOsc.start();
+          // sube el pitch a lo largo del giro
+          spinOsc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + {dur_sec});
+          // fade out al final
+          spinGain.gain.setTargetAtTime(0.0001, ctx.currentTime + {dur_sec} - 0.2, 0.15);
+        }}
+        function stopSpin() {{
+          try {{ if (spinOsc) spinOsc.stop(); }} catch(e) {{}}
+          try {{ if (spinOsc) spinOsc.disconnect(); }} catch(e) {{}}
+          try {{ if (spinGain) spinGain.disconnect(); }} catch(e) {{}}
+          spinOsc = null; spinGain = null;
+        }}
+        function playPop() {{
+          if (!soundOn) return;
+          ensureCtx();
+          if (!ctx) return;
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'square';
+          o.frequency.setValueAtTime(660, ctx.currentTime);
+          g.gain.setValueAtTime(0.001, ctx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.01);
+          g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
+          o.connect(g).connect(ctx.destination);
+          o.start();
+          o.stop(ctx.currentTime + 0.16);
+        }}
+
+        // Dispara animación: un frame en start, luego transición al end
+        requestAnimationFrame(() => {{
+          wheel.style.transition = 'transform ' + duration + 'ms cubic-bezier(.17,.67,.29,1.27)';
+          if (soundOn) playSpin();
+          wheel.addEventListener('transitionend', () => {{
+            stopSpin();
+            playPop();
+          }}, {{ once:true }});
+          wheel.style.transform = `rotate(${{end}}deg)`;
+        }});
+      }})();
+    </script>
     """
     return html_code
 # ========================================================

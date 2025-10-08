@@ -118,7 +118,10 @@ elif page == "Repertorio":
             with c2:
                 st.markdown(f"### {it['name']}")
                 st.write(it.get("desc", ""))
-                st.markdown(f'<span class="price">Bs {float(it["price"]):.2f}</span>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<span class="price">Bs {float(it["price"]):.2f}</span>',
+                    unsafe_allow_html=True,
+                )
             st.markdown('</div>', unsafe_allow_html=True)
 
 with c1:

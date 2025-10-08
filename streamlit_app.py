@@ -130,8 +130,9 @@ elif page == "Nosotros":
         {"name": "Daniel S", "role": "CEO", "img": "team_1.jpg"},
         {"name": "Luis V", "role": "CFO", "img": "team_2.jpg"},
         {"name": "Antonio G", "role": "DCI", "img": "team_3.jpg"},
-    {"name": "Bruno C", "role": "CD", "img": "team_4.jpg"},
-        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"},
+        {"name": "Bruno C", "role": "COO", "img": "team_4.jpg"},
+        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"}
+    ]
 
     cols = st.columns(3)
     for i, m in enumerate(team):
@@ -139,6 +140,7 @@ elif page == "Nosotros":
             _safe_image(m["img"], use_column_width=True)
             st.markdown(f"**{m['name']}**")
             st.caption(m["role"])
+
 
 
 elif page == "Ubicación":

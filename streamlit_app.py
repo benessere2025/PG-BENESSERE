@@ -127,10 +127,11 @@ elif page == "Nosotros":
     st.write("Conoce a las personas detrás de Benessere. Energía, servicio y buena vibra todos los días en la Univalle.")
 
     team = [
-        {"name": "Andrea", "role": "Atención & Operaciones", "img": "team_1.jpg"},
-        {"name": "Carlos", "role": "Bar & Preparación", "img": "team_2.jpg"},
-        {"name": "Gustavo", "role": "Gestión & Marca", "img": "team_3.jpg"},
-    ]
+        {"name": "Daniel S", "role": "CEO", "img": "team_1.jpg"},
+        {"name": "Luis V", "role": "CFO", "img": "team_2.jpg"},
+        {"name": "Antonio G", "role": "DCI", "img": "team_3.jpg"},
+    {"name": "Bruno C", "role": "CD", "img": "team_4.jpg"},
+        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"},
 
     cols = st.columns(3)
     for i, m in enumerate(team):

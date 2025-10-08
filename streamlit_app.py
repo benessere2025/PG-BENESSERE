@@ -720,20 +720,43 @@ elif page == "Recompensas":
 
     # ---------- Ruleta del bienestar (ANIMADA) ----------
     st.markdown("### Ruleta del bienestar (diaria)")
-    labels = [r["label"] for r in SPIN_REWARDS]
-    spin_state = st.session_state.get("spin_state", {"angle": 0, "idx": None, "label": None})
+  # ----- Bloque visual de la ruleta con animación -----
+with st.container():
+    # Estado inicial (si no existe)
+    if "spin" not in st.session_state:
+        st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
 
-    colA, colB = st.columns([1,1])
-    with colA:
-        # Render rueda con el ángulo actual (si giró, muestra animación a ese ángulo)
-       # estado inicial (si no existe)
-if "spin" not in st.session_state:
-    st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
+    spin = st.session_state["spin"]
 
-spin = st.session_state["spin"]
+    # Toggle opcional de sonido
+    st.checkbox("🔊 Sonido de ruleta", key="wheel_sound", value=st.session_state.get("wheel_sound", True))
 
-# toggle de sonido opcional
-st.checkbox("🔊 Sonido de ruleta", key="wheel_sound", value=st.session_state.get("wheel_sound", True))
+    # Mostrar ruleta con animación
+    st.components.v1.html(
+        build_wheel_html_anim(
+            labels,
+            start_deg=spin["start"],
+            end_deg=spin["end"],
+            duration_ms=3200,
+            sound=st.session_state.get("wheel_sound", True)
+        ),
+        height=420
+    )
+# -----------------------------------------------------
+
+    # Mostrar ruleta con animación
+    st.components.v1.html(
+        build_wheel_html_anim(
+            labels,
+            start_deg=spin["start"],
+            end_deg=spin["end"],
+            duration_ms=3200,
+            sound=st.session_state.get("wheel_sound", True)
+        ),
+        height=420
+    )
+# -----------------------------------------------------
+
 
 st.components.v1.html(
     build_wheel_html_anim(

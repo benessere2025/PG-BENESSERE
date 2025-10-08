@@ -285,19 +285,143 @@ def is_happy_hour():
     return HAPPY_HOUR[0] <= now.hour < HAPPY_HOUR[1]
 # ===========================================================
 # ========= Helpers de ruleta (HTML/CSS animado) =========
+# ========= Ruleta bonita y legible (HTML/CSS) =========
+def _wrap_label(txt: str, max_len=16):
+    """
+    Si el texto es largo, lo parte en 2 líneas usando el último espacio antes de max_len.
+    Deja emojis y palabras enteras lo más posible.
+    """
+    t = txt.strip()
+    if len(t) <= max_len:
+        return t
+    # intenta cortar en un espacio antes de max_len
+    cut = t.rfind(" ", 0, max_len)
+    if cut == -1:  # no hay espacio, corta duro
+        cut = max_len
+    line1 = t[:cut].strip()
+    line2 = t[cut:].strip()
+    return f"{line1}<br>{line2}"
+
 def build_wheel_html(labels, active_angle_deg=0):
+    """
+    Renderiza la rueda con:
+    - Segmentos alternando dos tonos.
+    - Texto centrado en cada porción, en 1–2 líneas, con buen contraste.
+    - Borde, sombra y hub central.
+    - Animación suave hacia el ángulo requerido.
+    """
     n = len(labels)
-    colors = ["#7C4DFF", "#9A6BFF"]  # alterna
-    # fondo como conic-gradient
-    stops = []
     step = 360 / n
-    for i, _ in enumerate(labels):
+    # Paleta (marca Benessere)
+    colors = ["#8353FF", "#6E42E6"]  # alterna morados
+    ring   = "#2A1B40"               # borde
+    text_c = "#FFFFFF"               # texto
+    pointer_c = "#ECE8F7"
+    hub_bg = "#0F0718"
+
+    # gradiente del círculo por segmentos
+    stops = []
+    for i in range(n):
         a0 = i * step
         a1 = (i + 1) * step
-        c = colors[i % 2]
+        c  = colors[i % 2]
         stops.append(f"{c} {a0}deg {a1}deg")
     gradient = ", ".join(stops)
-    # HTML + CSS con animación hacia el ángulo deseado
+
+    # etiquetas envueltas a 2 líneas cuando sea necesario
+    safe_labels = [_wrap_label(l, max_len=18) for l in labels]
+
+    # radio donde colocamos las etiquetas (ajusta para acercar/alejar del borde)
+    label_radius = 112  # px desde el centro
+    # tamaño de la rueda
+    size = 340
+
+    # construye divs de labels en posiciones correctas
+    label_divs = []
+    for i, txt in enumerate(safe_labels):
+        # centro angular del sector
+        center_deg = (i * step) + (step / 2)
+        # rotamos para “mirar” al borde, trasladamos hacia el radio y re-rotamos para que quede horizontal
+        label_divs.append(
+            f'''
+            <div class="label" style="
+                 transform: rotate({center_deg}deg)
+                            translate({label_radius}px)
+                            rotate({-center_deg}deg);
+            ">
+              <span class="pill">{txt}</span>
+            </div>
+            '''
+        )
+
+    html_code = f"""
+    <style>
+      .wheel-wrap {{
+        position: relative; width: {size}px; height: {size}px; margin: 0 auto;
+      }}
+      .wheel {{
+        width: 100%; height: 100%; border-radius: 50%;
+        border: 12px solid {ring};
+        background: conic-gradient({gradient});
+        transition: transform 3.2s cubic-bezier(.17,.67,.29,1.27);
+        transform: rotate(-{active_angle_deg}deg);
+        box-shadow: 0 14px 28px rgba(0,0,0,.35);
+      }}
+      .pointer {{
+        position: absolute; left: 50%; top: -6px; transform: translateX(-50%);
+        width: 0; height: 0;
+        border-left: 12px solid transparent; border-right: 12px solid transparent;
+        border-bottom: 22px solid {pointer_c};
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,.25));
+        z-index: 3;
+      }}
+      /* hub central para estética */
+      .hub {{
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+        width: 86px; height: 86px; border-radius: 50%;
+        background: {hub_bg};
+        border: 6px solid {ring};
+        box-shadow: inset 0 0 12px rgba(0,0,0,.55);
+        z-index: 2;
+      }}
+      .labels {{ position: absolute; inset: 0; }}
+      .label {{
+        position: absolute; left: 50%; top: 50%;
+        transform-origin: 0 0;
+        font-weight: 800; font-size: 13px; line-height: 1.05; letter-spacing:.2px;
+        color: {text_c};
+        text-align: center;
+        z-index: 2;
+      }}
+      .label .pill {{
+        display:inline-block; max-width: 120px;
+        padding: 2px 8px; border-radius: 10px;
+        background: rgba(15,7,24,.35);          /* fondo semitransparente para contraste */
+        backdrop-filter: blur(1px);
+        text-shadow: 0 1px 1px rgba(0,0,0,.45);
+        white-space: normal;
+      }}
+
+      /* Responsive (móviles) */
+      @media (max-width: 480px) {{
+        .wheel-wrap {{ width: 280px; height: 280px; }}
+        .label {{ font-size: 12px; }}
+        .label .pill {{ max-width: 100px; }}
+      }}
+    </style>
+
+    <div class="wheel-wrap">
+      <div class="pointer"></div>
+      <div class="wheel"></div>
+      <div class="labels">
+        {''.join(label_divs)}
+      </div>
+      <div class="hub"></div>
+    </div>
+    """
+    return html_code
+# ========================================================
+
     html_code = f"""
     <style>
     .wheel-wrap {{

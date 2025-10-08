@@ -128,11 +128,13 @@ SPIN_REWARDS = [
 ]
 
 
+# 🪙 Sistema de canjeo Benessere actualizado (valores altos pero alcanzables)
 REDEEM_ITEMS = [
-    {"name":"Açaí Zero 120g", "cost":250, "coupon":"CANJ-ACAI120"},
-    {"name":"Açaí Zero 180g", "cost":500, "coupon":"CANJ-ACAI180"},
-    {"name":"Jugo Natural 350 ml", "cost":180, "coupon":"CANJ-J350"},
-    {"name":"Jugo Natural 600 ml", "cost":250, "coupon":"CANJ-J600"},
+    {"name": "Açaí Zero 120g", "cost": 2500, "coupon": "CANJ-ACAI120"},
+    {"name": "Açaí Zero 180g", "cost": 3000, "coupon": "CANJ-ACAI180"},
+    {"name": "Jugo Natural 350 ml", "cost": 2000, "coupon": "CANJ-J350"},
+    {"name": "Jugo Natural 600 ml", "cost": 2600, "coupon": "CANJ-J600"},
+    {"name": "Granola", "cost": 2400, "coupon": "CANJ-GRANOLA"},
 ]
 
 def _now():

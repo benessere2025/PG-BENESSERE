@@ -286,22 +286,6 @@ def is_happy_hour():
 # ===========================================================
 # ========= Helpers de ruleta (HTML/CSS animado) =========
 # ========= Ruleta bonita y legible (HTML/CSS) =========
-def _wrap_label(txt: str, max_len=16):
-    """
-    Si el texto es largo, lo parte en 2 líneas usando el último espacio antes de max_len.
-    Deja emojis y palabras enteras lo más posible.
-    """
-    t = txt.strip()
-    if len(t) <= max_len:
-        return t
-    # intenta cortar en un espacio antes de max_len
-    cut = t.rfind(" ", 0, max_len)
-    if cut == -1:  # no hay espacio, corta duro
-        cut = max_len
-    line1 = t[:cut].strip()
-    line2 = t[cut:].strip()
-    return f"{line1}<br>{line2}"
-
 # ========= Ruleta con ANIMACIÓN + SONIDO (WebAudio) =========
 def _wrap_label(txt: str, max_len=16):
     t = txt.strip()
@@ -332,7 +316,7 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
         stops.append(f"{c} {a0}deg {a1}deg")
     gradient = ", ".join(stops)
 
-    # etiquetas (autowrap)
+    # etiquetas (2 líneas si es largo)
     safe_labels = [_wrap_label(l, max_len=18) for l in labels]
     label_divs = []
     for i, txt in enumerate(safe_labels):
@@ -361,8 +345,7 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
         width: 100%; height: 100%; border-radius: 50%;
         border: 12px solid {ring};
         background: conic-gradient({gradient});
-        /* sin transición inicial; la aplicamos vía JS */
-        transform: rotate(-{start_deg}deg);
+        transform: rotate(-{start_deg}deg);   /* empieza en start */
         box-shadow: 0 14px 28px rgba(0,0,0,.35);
       }}
       .pointer {{
@@ -433,17 +416,12 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
           spinOsc = ctx.createOscillator();
           spinGain = ctx.createGain();
           spinOsc.type = 'sawtooth';
-          // tono inicial
           spinOsc.frequency.setValueAtTime(220, ctx.currentTime);
-          // volumen suave
           spinGain.gain.setValueAtTime(0.0001, ctx.currentTime);
           spinGain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.2);
-          // conectamos
           spinOsc.connect(spinGain).connect(ctx.destination);
           spinOsc.start();
-          // sube el pitch a lo largo del giro
           spinOsc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + {dur_sec});
-          // fade out al final
           spinGain.gain.setTargetAtTime(0.0001, ctx.currentTime + {dur_sec} - 0.2, 0.15);
         }}
         function stopSpin() {{
@@ -471,7 +449,7 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
         // Dispara animación: un frame en start, luego transición al end
         requestAnimationFrame(() => {{
           wheel.style.transition = 'transform ' + duration + 'ms cubic-bezier(.17,.67,.29,1.27)';
-          if (soundOn) playSpin();
+          playSpin();
           wheel.addEventListener('transitionend', () => {{
             stopSpin();
             playPop();
@@ -482,7 +460,12 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
     </script>
     """
     return html_code
-# ========================================================
+
+# (Compatibilidad) si en alguna parte aún se llama build_wheel_html(angle),
+# redirigimos a la versión animada, sin animación (start=end)
+def build_wheel_html(labels, angle):
+    return build_wheel_html_anim(labels, start_deg=angle, end_deg=angle, duration_ms=0, sound=False)
+
 
 # ========= Chequeos simples de imagen (beta, sin romper) =========
 def _try_import_pil_numpy():
@@ -743,35 +726,61 @@ elif page == "Recompensas":
     colA, colB = st.columns([1,1])
     with colA:
         # Render rueda con el ángulo actual (si giró, muestra animación a ese ángulo)
-        st.components.v1.html(build_wheel_html(labels, spin_state["angle"]), height=380)
+       # estado inicial (si no existe)
+if "spin" not in st.session_state:
+    st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
+
+spin = st.session_state["spin"]
+
+# toggle de sonido opcional
+st.checkbox("🔊 Sonido de ruleta", key="wheel_sound", value=st.session_state.get("wheel_sound", True))
+
+st.components.v1.html(
+    build_wheel_html_anim(
+        labels,
+        start_deg=spin["start"],
+        end_deg=spin["end"],
+        duration_ms=3200,
+        sound=st.session_state.get("wheel_sound", True)
+    ),
+    height=420
+)
 
     with colB:
-        if can_spin_today(u):
-            if st.button("🎡 Girar la ruleta"):
-                # Elegimos premio ponderado y calculamos ángulo exacto de llegada
-                weights = [r.get("w", 1) for r in SPIN_REWARDS]
-                prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]
-                idx = labels.index(prize["label"])
-                n = len(labels); step = 360 / n
-                center = idx * step + (step/2)
-                angle = 360*4 + center  # 4 vueltas completas + caer al centro del premio
+   if can_spin_today(u):
+    if st.button("🎡 Girar la ruleta", key="spin_button"):
+        # elige premio según pesos que definiste en SPIN_REWARDS
+        weights = [r.get("w", 1) for r in SPIN_REWARDS]
+        prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]
 
-                # Aplicamos recompensa
-                if prize["points"]:
-                    add_points(u, db, prize["points"], "Ruleta diaria")
-                if prize["coupon"]:
-                    u.setdefault("coupons", []).append({
-                        "code": prize["coupon"],
-                        "ts": _now().isoformat(),
-                        "source": "Ruleta"
-                    })
-                u["last_spin"] = _now().isoformat()
+        idx = labels.index(prize["label"])
+        n = len(labels); step = 360 / n
+        center = idx * step + (step / 2)
 
-                # Guardamos para renderizar animación
-                spin_state = {"angle": angle, "idx": idx, "label": prize["label"]}
-                st.session_state["spin_state"] = spin_state
-                _save_db(db)
-                st.rerun()
+        # continuidad visual (arranca donde quedó)
+        base  = (st.session_state["spin"]["end"] or 0) % 360
+        start = base
+        end   = base + 360*4 + center  # 4 vueltas + caer al premio
+
+        # aplica la recompensa (puntos o cupón)
+        if prize["points"]:
+            add_points(u, db, prize["points"], "Ruleta diaria")
+        if prize["coupon"]:
+            u.setdefault("coupons", []).append(
+                {"code": prize["coupon"], "ts": _now().isoformat(), "source": "Ruleta"}
+            )
+        u["last_spin"] = _now().isoformat()
+        _save_db(db)
+
+        # guarda ángulos para que el HTML anime del start al end
+        st.session_state["spin"] = {"start": start, "end": end, "label": prize["label"]}
+else:
+    st.info("Ya giraste hoy. Vuelve mañana ✨")
+
+# mensaje con el resultado
+if st.session_state["spin"]["label"]:
+    st.success(f"Resultado: **{st.session_state['spin']['label']}**")
+
         else:
             st.info("Ya giraste hoy. Vuelve mañana ✨")
 

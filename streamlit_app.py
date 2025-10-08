@@ -147,20 +147,28 @@ elif page == "Nosotros":
 
 elif page == "Ubicación":
     st.title("Ubicación")
-    st.write("Benessere — Campus **Universidad Privada del Valle**.")
+    st.write("Benessere — Campus **Universidad Privada del Valle (Santa Cruz de la Sierra)**.")
+
+    # Foto del campus
+    _safe_image("univalle_sc.jpg", use_container_width=True)
+
+    # Mapa centrado en Univalle Santa Cruz de la Sierra
     html(
         """
         <iframe
-          src="https://www.google.com/maps?q=Universidad%20Privada%20del%20Valle&output=embed"
+          src="https://www.google.com/maps?q=Universidad%20Privada%20del%20Valle%20Santa%20Cruz%20de%20la%20Sierra&output=embed"
           width="100%" height="380" style="border:0;border-radius:16px;"
           allowfullscreen="" loading="lazy"></iframe>
-        """, height=400
+        """,
+        height=400
     )
+
     st.markdown(
-        '<div class="btn"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=Universidad%20Privada%20del%20Valle">Abrir en Google Maps</a></div>',
+        '<div class="btn"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=Universidad%20Privada%20del%20Valle%20Santa%20Cruz%20de%20la%20Sierra">Abrir en Google Maps</a></div>',
         unsafe_allow_html=True
     )
     st.write("Horario: **9:00 – 21:00**")
+
 
 else:
     st.title("Más detalles")

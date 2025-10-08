@@ -124,7 +124,7 @@ elif page == "Repertorio":
                 )
             st.markdown('</div>', unsafe_allow_html=True)
 
-        for it in items:
+            for it in items:
             st.markdown('<div class="card">', unsafe_allow_html=True)
             c1, c2 = st.columns([1, 3])
 
@@ -141,8 +141,7 @@ elif page == "Repertorio":
                     unsafe_allow_html=True,
                 )
 
-            st.markdown("</div>", unsafe_allow_html=True)
-
+            st.markdown('</div>', unsafe_allow_html=True)
 
 elif page == "Nosotros":
     st.title("Nuestro equipo")

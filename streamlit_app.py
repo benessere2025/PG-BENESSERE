@@ -7,7 +7,7 @@ ROOT = Path(__file__).parent
 IMG = ROOT / "static" / "images"
 MENU_PATH = ROOT / "data" / "menu.json"
 
-# --------------------- CARGAR MENÚ ---------------------
+
 def load_menu():
     candidates = [
         MENU_PATH,
@@ -18,34 +18,33 @@ def load_menu():
         if p.exists():
             with open(p, "r", encoding="utf-8") as f:
                 return json.load(f)
-    # Fallback default
     return {
-        "bowls":[
-            {"name":"Açaí Zero 180g", "desc":"Açaí sin azúcar + toppings. Tamaño M.", "price":30},
-            {"name":"Açaí Zero 120g", "desc":"Açaí sin azúcar + toppings. Tamaño S.", "price":25},
+        "bowls": [
+            {"name": "Açaí Zero 180g", "desc": "Açaí sin azúcar + toppings. Tamaño M.", "price": 30},
+            {"name": "Açaí Zero 120g", "desc": "Açaí sin azúcar + toppings. Tamaño S.", "price": 25},
         ],
-        "bebidas":[
-            {"name":"Jugo Natural 350 ml","desc":"Fruta 100% | vaso S","price":7},
-            {"name":"Jugo Natural 600 ml","desc":"Fruta 100% | vaso M","price":9},
-        ]
+        "bebidas": [
+            {"name": "Jugo Natural 350 ml", "desc": "Fruta 100% | vaso S", "price": 7},
+            {"name": "Jugo Natural 600 ml", "desc": "Fruta 100% | vaso M", "price": 9},
+        ],
     }
 
-# --------------------- CONFIGURACIÓN ---------------------
-st.set_page_config(page_title="Benessere", page_icon=str(IMG/"logo.jpg"), layout="wide")
 
-# --------------------- ESTILO PERSONALIZADO ---------------------
+st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layout="wide")
+
+# ✅ Bloque CSS limpio y funcional
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
 }
-html, body, .main { background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto; }
+html, body, .main { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
 .block-container { max-width: 1200px; padding-top: 0.8rem; }
 h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
 p { color: var(--muted); }
 
-/* Cards */
+/* Tarjetas */
 .card{
   background: var(--card);
   border: 1px solid var(--border);
@@ -55,7 +54,11 @@ p { color: var(--muted); }
   box-shadow: 0 6px 18px rgba(0,0,0,.18);
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
-.card:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,.26); border-color:#3a2b57; }
+.card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.26);
+  border-color:#3a2b57;
+}
 .price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
 
 /* Imagen de producto */
@@ -81,18 +84,19 @@ p { color: var(--muted); }
 </style>
 """, unsafe_allow_html=True)
 
-# --------------------- FUNCIONES ---------------------
+
 def _find_image(filename: str):
     candidates = [
         IMG / filename,
         Path.cwd() / "static" / "images" / filename,
         ROOT / "static" / "images" / filename,
-        Path(filename)
+        Path(filename),
     ]
     for p in candidates:
         if p.exists():
             return str(p)
     return None
+
 
 def _safe_image(filename: str, **kwargs):
     p = _find_image(filename)
@@ -101,20 +105,20 @@ def _safe_image(filename: str, **kwargs):
     else:
         st.info(f"[imagen no encontrada: {filename}]")
 
-# --------------------- MENÚ LATERAL ---------------------
+
 MENU = load_menu()
 
 st.sidebar.image(_find_image("logo.jpg"), width=140)
 page = st.sidebar.radio("Navegación", ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Más detalles"])
 st.sidebar.markdown(
     '<div class="btn"><a target="_blank" href="https://wa.me/59176073314?text=Hola,%20quiero%20pedir%20un%20Açaí%20Zero%20180g%20y%20un%20Açaí%20Zero%20120g.">Pedir por WhatsApp</a></div>',
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 st.sidebar.write("Horario: **9:00 – 21:00**")
 
-# --------------------- PÁGINAS ---------------------
+
 if page == "Inicio":
-    col1, col2 = st.columns([1.2,1])
+    col1, col2 = st.columns([1.2, 1])
     with col1:
         st.title("Bienestar que se come")
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
@@ -131,9 +135,10 @@ if page == "Inicio":
             st.markdown(
                 f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
                 f'<span class="price">Bs {it["price"]:.2f}</span></div>',
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
-    _safe_image("kiosk.jpg", width=360); _safe_image("bowl.jpg", width=360)
+    _safe_image("kiosk.jpg", width=360)
+    _safe_image("bowl.jpg", width=360)
 
 elif page == "Repertorio":
     st.title("Repertorio")
@@ -170,7 +175,7 @@ elif page == "Nosotros":
         {"name": "Luis V", "role": "CFO", "img": "team_2.jpg"},
         {"name": "Antonio G", "role": "DCI", "img": "team_3.jpg"},
         {"name": "Bruno C", "role": "COO", "img": "team_4.jpg"},
-        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"}
+        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"},
     ]
 
     cols = st.columns(3)
@@ -183,11 +188,7 @@ elif page == "Nosotros":
 elif page == "Ubicación":
     st.title("Ubicación")
     st.write("Benessere — Campus **Universidad Privada del Valle (Santa Cruz de la Sierra)**.")
-
-    # Foto del campus
     _safe_image("univalle_sc.jpg", use_container_width=True)
-
-    # Mapa centrado en Univalle Santa Cruz de la Sierra
     html(
         """
         <iframe
@@ -195,12 +196,11 @@ elif page == "Ubicación":
           width="100%" height="380" style="border:0;border-radius:16px;"
           allowfullscreen="" loading="lazy"></iframe>
         """,
-        height=400
+        height=400,
     )
-
     st.markdown(
         '<div class="btn"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=Universidad%20Privada%20del%20Valle%20Santa%20Cruz%20de%20la%20Sierra">Abrir en Google Maps</a></div>',
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
     st.write("Horario: **9:00 – 21:00**")
 
@@ -213,10 +213,11 @@ else:
     with st.expander("¿Personalización?"):
         st.write("Elige base, toppings y crunch a tu gusto.")
 
-# --------------------- BOTÓN WHATSAPP ---------------------
 st.markdown(
     '<a style="position:fixed;right:18px;bottom:18px;background:#25D366;color:#0b1a0f;'
     'padding:10px 14px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:9999;" '
     'href="https://wa.me/59176073314?text=Hola%20Benessere,%20quiero%20hacer%20un%20pedido" target="_blank">'
-    'WhatsApp</a>', unsafe_allow_html=True
+    'WhatsApp</a>',
+    unsafe_allow_html=True,
 )
+

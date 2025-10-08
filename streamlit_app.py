@@ -1,4 +1,3 @@
-
 import json
 import streamlit as st
 from pathlib import Path
@@ -85,7 +84,7 @@ if page == "Inicio":
         st.title("Bienestar que se come")
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
     with col2:
-      _safe_image("bowl2.jpg", use_container_width=True)
+        _safe_image("bowl2.jpg", use_container_width=True)
 
     st.markdown("### Destacados")
     cols = st.columns(4)
@@ -94,8 +93,11 @@ if page == "Inicio":
         sample += cat[:2]
     for i, it in enumerate(sample[:4]):
         with cols[i]:
-            st.markdown(f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
-                        f'<span class="price">Bs {it["price"]:.2f}</span></div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
+                f'<span class="price">Bs {it["price"]:.2f}</span></div>',
+                unsafe_allow_html=True
+            )
     _safe_image("kiosk.jpg", width=360); _safe_image("bowl.jpg", width=360)
 
 elif page == "Repertorio":
@@ -124,25 +126,6 @@ elif page == "Repertorio":
                 )
             st.markdown('</div>', unsafe_allow_html=True)
 
-            for it in items:
-            st.markdown('<div class="card">', unsafe_allow_html=True)
-            c1, c2 = st.columns([1, 3])
-
-            with c1:
-                st.markdown('<div class="product-img">', unsafe_allow_html=True)
-                _safe_image(it.get("img", ""), use_container_width=True)
-                st.markdown('</div>', unsafe_allow_html=True)
-
-            with c2:
-                st.markdown(f"### {it['name']}")
-                st.write(it.get("desc", ""))
-                st.markdown(
-                    f'<span class="price">Bs {float(it["price"]):.2f}</span>',
-                    unsafe_allow_html=True,
-                )
-
-            st.markdown('</div>', unsafe_allow_html=True)
-
 elif page == "Nosotros":
     st.title("Nuestro equipo")
     st.write("Conoce a las personas detrás de Benessere. Energía, servicio y buena vibra todos los días en la Univalle.")
@@ -158,11 +141,9 @@ elif page == "Nosotros":
     cols = st.columns(3)
     for i, m in enumerate(team):
         with cols[i % 3]:
-           _safe_image(m["img"], use_container_width=True)
+            _safe_image(m["img"], use_container_width=True)
             st.markdown(f"**{m['name']}**")
             st.caption(m["role"])
-
-
 
 elif page == "Ubicación":
     st.title("Ubicación")

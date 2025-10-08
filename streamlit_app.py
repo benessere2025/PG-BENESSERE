@@ -770,8 +770,10 @@ st.components.v1.html(
 )
 
     with colB:
-   if can_spin_today(u):
-    if st.button("🎡 Girar la ruleta", key="spin_button"):
+    if can_spin_today(u):
+        if st.button("🎡 Girar la ruleta", key="spin_button"):
+            # el resto de tu código igual
+
         # elige premio según pesos que definiste en SPIN_REWARDS
         weights = [r.get("w", 1) for r in SPIN_REWARDS]
         prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]

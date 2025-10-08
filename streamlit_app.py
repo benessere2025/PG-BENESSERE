@@ -127,7 +127,6 @@ SPIN_REWARDS = [
     {"label": "🥣 -50% en Granola",          "points": 0,   "coupon": "DESC50-GRANOLA",  "w": 3},
 ]
 
-]
 
 REDEEM_ITEMS = [
     {"name":"Açaí Zero 120g", "cost":250, "coupon":"CANJ-ACAI120"},

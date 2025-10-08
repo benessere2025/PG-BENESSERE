@@ -34,19 +34,41 @@ def load_menu():
 st.set_page_config(page_title="Benessere", page_icon=str(IMG/"logo.jpg"), layout="wide")
 
 st.markdown("""
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f0718; --brand:#2E0647; --accent:#7C4DFF; --text:#ECE8F7; --muted:#B7A8D9;
+  --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
 }
-.main { background: var(--bg); color: var(--text); }
-h1,h2,h3,h4 { color: var(--text); }
-.block-container { padding-top: 1rem; }
-.btn a { text-decoration:none; background: var(--accent); color:#0c0613; 
-  padding:.6rem 1rem; border-radius:12px; font-weight:800; }
-.card{background:#1b0f2b; border:1px solid #2a1b40; border-radius:16px; padding:1rem; margin:.4rem 0;}
-.price{background:rgba(124,77,255,.15); padding:.2rem .6rem; border-radius:999px;}
-hr{border: none; border-top: 1px solid #2a1b40;}
+html, body, .main { background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto; }
+.block-container { max-width: 1200px; padding-top: 0.8rem; }
+h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
+p { color: var(--muted); }
+
+/* Cards */
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin: .6rem 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.card:hover{ transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0,0,0,.26); border-color:#3a2b57; }
+.price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
+
+/* Imagen de producto consistente */
+.product-img img{ border-radius: 12px; width: 120px; height: 120px; object-fit: cover; border:1px solid var(--border); }
+
+/* Avatar equipo */
+.team-card img{ border-radius: 18px; width: 100%; height: 220px; object-fit: cover; border:1px solid var(--border); }
+
+/* Limpieza UI Streamlit */
+#MainMenu, header, footer {visibility: hidden;}
 </style>
+""", unsafe_allow_html=True)
+
 """, unsafe_allow_html=True)
 
 def _find_image(filename: str):
@@ -178,3 +200,9 @@ else:
         st.write("Pickup en kiosco y pedido por WhatsApp.")
     with st.expander("¿Personalización?"):
         st.write("Elige base, toppings y crunch a tu gusto.")
+st.markdown(
+    '<a style="position:fixed;right:18px;bottom:18px;background:#25D366;color:#0b1a0f;'
+    'padding:10px 14px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:9999;" '
+    'href="https://wa.me/59176073314?text=Hola%20Benessere,%20quiero%20hacer%20un%20pedido" target="_blank">'
+    'WhatsApp</a>', unsafe_allow_html=True
+)

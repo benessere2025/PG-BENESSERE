@@ -124,18 +124,25 @@ elif page == "Repertorio":
                 )
             st.markdown('</div>', unsafe_allow_html=True)
 
-with c1:
-    st.markdown('<div class="product-img">', unsafe_allow_html=True)
-    _safe_image(it.get("img", ""), use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-with c2:
-    st.markdown(f"### {it['name']}")
-    st.write(it.get("desc", ""))
-    st.markdown(f'<span class="price">Bs {float(it["price"]):.2f}</span>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+        for it in items:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            c1, c2 = st.columns([1, 3])
 
-                
-            st.markdown('</div>', unsafe_allow_html=True)
+            with c1:
+                st.markdown('<div class="product-img">', unsafe_allow_html=True)
+                _safe_image(it.get("img", ""), use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            with c2:
+                st.markdown(f"### {it['name']}")
+                st.write(it.get("desc", ""))
+                st.markdown(
+                    f'<span class="price">Bs {float(it["price"]):.2f}</span>',
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
 
 elif page == "Nosotros":
     st.title("Nuestro equipo")

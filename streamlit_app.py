@@ -132,7 +132,6 @@ with c2:
 st.markdown('</div>', unsafe_allow_html=True)
 
                 
-
             st.markdown('</div>', unsafe_allow_html=True)
 
 elif page == "Nosotros":

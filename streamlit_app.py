@@ -96,6 +96,164 @@ def _find_image(filename: str):
         if p.exists():
             return str(p)
     return None
+# ================== Benessere Loyalty Utils ==================
+import random, hashlib
+from datetime import datetime, timedelta, timezone
+
+DB_PATH = ROOT / "data" / "loyalty.json"
+CHECKIN_CODE = "BENESSERE-CHECKIN"            # texto que mostrará el QR del kiosco
+HAPPY_HOUR = (15, 16)                         # 15:00–16:00
+
+SPIN_REWARDS = [
+    {"label":"🎟️ -10% en Açaí", "points":0, "coupon":"DESC10-ACAI"},
+    {"label":"🧃 -15% en Jugo",  "points":0, "coupon":"DESC15-JUGO"},
+    {"label":"⭐ +25 pts",       "points":25, "coupon":None},
+    {"label":"⭐ +50 pts",       "points":50, "coupon":None},
+    {"label":"🍓 Topping gratis","points":0, "coupon":"TOPPING-FREE"},
+    {"label":"🎉 +100 pts",      "points":100,"coupon":None},
+]
+
+REDEEM_ITEMS = [
+    {"name":"Açaí Zero 120g", "cost":250, "coupon":"CANJ-ACAI120"},
+    {"name":"Açaí Zero 180g", "cost":500, "coupon":"CANJ-ACAI180"},
+    {"name":"Jugo Natural 350 ml", "cost":180, "coupon":"CANJ-J350"},
+    {"name":"Jugo Natural 600 ml", "cost":250, "coupon":"CANJ-J600"},
+]
+
+def _now():
+    return datetime.now(timezone.utc) - timedelta(hours=4)  # Bolivia
+
+def _today_str():
+    return _now().strftime("%Y-%m-%d")
+
+def _load_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if DB_PATH.exists():
+        try:
+            return json.loads(DB_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {}
+
+def _save_db(db):
+    DB_PATH.write_text(json.dumps(db, ensure_ascii=False, indent=2), encoding="utf-8")
+
+def _uid(raw: str):
+    return hashlib.sha1(raw.strip().lower().encode("utf-8")).hexdigest()[:12]
+
+def get_user(db, user_id):
+    u = db.get("users", {}).get(user_id)
+    if not u:
+        u = {
+            "id": user_id,
+            "name": "",
+            "points": 0,
+            "created": _now().isoformat(),
+            "last_spin": None,
+            "daily": {},            # por fecha: {steps_done, water_done, checkin}
+            "ref_code": user_id[:6].upper(),
+            "referred_by": None,
+            "purchases": [],       # [{"date":..., "product":"..."}]
+            "coupons": [],
+        }
+        db.setdefault("users", {})[user_id] = u
+    return u
+
+def add_points(u, db, pts, reason=""):
+    u["points"] = int(u.get("points", 0)) + int(pts)
+    db.setdefault("history", []).append(
+        {"uid": u["id"], "ts": _now().isoformat(), "delta": pts, "reason": reason}
+    )
+
+def ensure_daily(u):
+    d = u["daily"].get(_today_str()) or {"steps_done": False, "water_done": False, "checkin": False}
+    u["daily"][_today_str()] = d
+    return d
+
+def can_spin_today(u):
+    last = u.get("last_spin")
+    return (not last) or (last.split("T")[0] != _today_str())
+
+def spin(u, db):
+    if not can_spin_today(u):
+        return None, "Ya giraste hoy."
+    prize = random.choice(SPIN_REWARDS)
+    if prize["points"]:
+        add_points(u, db, prize["points"], "Ruleta diaria")
+    if prize["coupon"]:
+        u["coupons"].append({"code": prize["coupon"], "ts": _now().isoformat(), "source":"Ruleta"})
+    u["last_spin"] = _now().isoformat()
+    return prize, None
+
+def checkin(u, db, code: str):
+    d = ensure_daily(u)
+    if d["checkin"]:
+        return False, "Check-in de hoy ya registrado."
+    if code.strip().upper() != CHECKIN_CODE:
+        return False, "Código inválido."
+    d["checkin"] = True
+    add_points(u, db, 20, "Check-in local")
+    return True, None
+
+def log_steps(u, db, steps: int):
+    d = ensure_daily(u)
+    if d["steps_done"]:
+        return False, "Reto de pasos ya completado hoy."
+    if steps >= 7000:
+        d["steps_done"] = True
+        add_points(u, db, 30, "Reto diario: pasos")
+        return True, None
+    return False, "Aún no llegas a 7.000 pasos."
+
+def log_water(u, db, liters: float):
+    d = ensure_daily(u)
+    if d["water_done"]:
+        return False, "Reto de agua ya completado hoy."
+    if liters >= 2.0:
+        d["water_done"] = True
+        add_points(u, db, 30, "Reto diario: agua")
+        return True, None
+    return False, "Aún no llegas a 2 litros."
+
+def record_purchase(u, db, product_name):
+    u["purchases"].append({"date": _now().isoformat(), "product": product_name})
+    if len(u["purchases"]) >= 2:
+        last, prev = u["purchases"][-1]["product"], u["purchases"][-2]["product"]
+        if last == prev:
+            code = f"FREE-{_today_str()}-{_uid(last)[:4]}".upper()
+            u["coupons"].append({"code": code, "ts": _now().isoformat(), "source":"Semana Zero"})
+            return code
+    return None
+
+def redeem(u, db, item):
+    cost = int(item["cost"])
+    if u["points"] < cost:
+        return False, "No tienes puntos suficientes."
+    u["points"] -= cost
+    code = item["coupon"]
+    u["coupons"].append({"code": code, "ts": _now().isoformat(), "source":"Canje"})
+    db.setdefault("redemptions", []).append({"uid": u["id"], "item": item["name"], "ts": _now().isoformat()})
+    return True, code
+
+def apply_referral(db, new_user, ref_code):
+    if not ref_code:
+        return
+    for u in db.get("users", {}).values():
+        if u.get("ref_code") == ref_code.upper() and u["id"] != new_user["id"]:
+            new_user["referred_by"] = u["id"]
+            add_points(new_user, db, 50, "Registro con referido")
+            add_points(u, db, 50, "Invitó a un amigo")
+            break
+
+def leaderboard(db, top_n=10):
+    users = list(db.get("users", {}).values())
+    users.sort(key=lambda x: x.get("points", 0), reverse=True)
+    return users[:top_n]
+
+def is_happy_hour():
+    now = _now()
+    return HAPPY_HOUR[0] <= now.hour < HAPPY_HOUR[1]
+# ===========================================================
 
 
 def _safe_image(filename: str, **kwargs):
@@ -109,12 +267,44 @@ def _safe_image(filename: str, **kwargs):
 MENU = load_menu()
 
 st.sidebar.image(_find_image("logo.jpg"), width=140)
-page = st.sidebar.radio("Navegación", ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Más detalles"])
+page = st.sidebar.radio(
+    "Navegación",
+    ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Recompensas", "Zona de canjeo", "Ranking", "Más detalles"]
+)
+
 st.sidebar.markdown(
     '<div class="btn"><a target="_blank" href="https://wa.me/59176073314?text=Hola,%20quiero%20pedir%20un%20Açaí%20Zero%20180g%20y%20un%20Açaí%20Zero%20120g.">Pedir por WhatsApp</a></div>',
     unsafe_allow_html=True,
 )
 st.sidebar.write("Horario: **9:00 – 21:00**")
+# --------- Registro simple de usuario ----------
+db = _load_db()
+default_name = st.session_state.get("name", "")
+name = st.sidebar.text_input("Tu nombre o celular", value=default_name, placeholder="Ej: 76073314")
+ref_in = st.sidebar.text_input("Código de referido (opcional)", value=st.session_state.get("ref", ""))
+
+if st.sidebar.button("Entrar"):
+    if not name.strip():
+        st.sidebar.error("Ingresa tu nombre o celular")
+    else:
+        uid = _uid(name)
+        st.session_state["uid"] = uid
+        st.session_state["name"] = name.strip()
+        u = get_user(db, uid)
+        if not u["name"]:
+            u["name"] = name.strip()
+            apply_referral(db, u, ref_in)
+        _save_db(db)
+        st.sidebar.success(f"¡Hola, {name}! Tu código: {get_user(db, uid)['ref_code']}")
+
+uid = st.session_state.get("uid")
+current_user = get_user(db, uid) if uid else None
+
+if current_user:
+    st.sidebar.markdown(f"**Benessere Points:** {current_user['points']}")
+    st.sidebar.caption(f"Código de referidos: `{current_user['ref_code']}`")
+else:
+    st.sidebar.info("Inicia sesión para usar Recompensas y Canjeo.")
 
 
 if page == "Inicio":
@@ -203,6 +393,101 @@ elif page == "Ubicación":
         unsafe_allow_html=True,
     )
     st.write("Horario: **9:00 – 21:00**")
+elif page == "Recompensas":
+    st.title("Recompensas")
+    if not current_user:
+        st.warning("Inicia sesión en la barra lateral para usar esta sección.")
+        st.stop()
+
+    u = current_user
+    st.subheader(f"Tus puntos: {u['points']}")
+    if is_happy_hour():
+        st.success("⏰ **Happy Hour** activo: ¡descuentos especiales en tienda por 1 hora!")
+
+    # ---- Retos diarios ----
+    st.markdown("### Retos diarios")
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        steps = st.number_input("Pasos de hoy", min_value=0, value=0, step=500)
+        if st.button("Marcar 7000 pasos"):
+            ok, msg = log_steps(u, db, int(steps))
+            st.success("Reto completado +30 pts") if ok else st.error(msg)
+    with c2:
+        water = st.number_input("Litros de agua hoy", min_value=0.0, value=0.0, step=0.25, format="%.2f")
+        if st.button("Marcar 2L de agua"):
+            ok, msg = log_water(u, db, float(water))
+            st.success("Reto completado +30 pts") if ok else st.error(msg)
+    with c3:
+        st.caption("Check-in en el local (usa el QR del kiosco)")
+        code_in = st.text_input("Código de check-in", placeholder="Escanea el QR y pega el código")
+        if st.button("Registrar check-in"):
+            ok, msg = checkin(u, db, code_in)
+            st.success("Check-in registrado +20 pts") if ok else st.error(msg)
+
+    # ---- Ruleta del bienestar ----
+    st.markdown("### Ruleta del bienestar (diaria)")
+    if can_spin_today(u):
+        if st.button("🎡 Girar la ruleta"):
+            prize, msg = spin(u, db)
+            if prize:
+                txt = f"Resultado: **{prize['label']}**"
+                if prize["points"]>0: txt += f" → +{prize['points']} pts"
+                if prize["coupon"]:   txt += f" → cupón: `{prize['coupon']}`"
+                st.success(txt)
+            else:
+                st.error(msg or "No disponible")
+    else:
+        st.info("Ya giraste hoy. Vuelve mañana ✨")
+
+    # ---- Semana Zero (demo manual) ----
+    st.markdown("### Semana Zero")
+    prod = st.selectbox("Registra tu compra para Semana Zero", ["Açaí Zero 120g","Açaí Zero 180g","Jugo 350 ml","Jugo 600 ml"])
+    if st.button("Registrar compra"):
+        code = record_purchase(u, db, prod)
+        if code:
+            st.success(f"¡Siguiente {prod} puede ser **GRATIS**! Cupón: `{code}`")
+        else:
+            st.info("Compra registrada. Si repites el producto dos veces seguidas, generamos cupón gratuito.")
+
+    # ---- Invita a un amigo ----
+    st.markdown("### Invita a un amigo")
+    st.write("Comparte tu código de referido:")
+    st.code(u["ref_code"], language="text")
+
+    # ---- Tus cupones ----
+    st.markdown("### Tus cupones")
+    if u["coupons"]:
+        for c in u["coupons"]:
+            st.write(f"- `{c['code']}` (origen: {c['source']})")
+    else:
+        st.caption("Sin cupones todavía.")
+
+    _save_db(db)
+elif page == "Zona de canjeo":
+    st.title("Zona de canjeo")
+    if not current_user:
+        st.warning("Inicia sesión para canjear tus puntos.")
+        st.stop()
+
+    st.subheader(f"Tu balance: {current_user['points']} pts")
+    for item in REDEEM_ITEMS:
+        with st.container(border=True):
+            st.markdown(f"**{item['name']}** — {item['cost']} pts")
+            if st.button(f"Canjear: {item['name']}", key=f"redeem-{item['name']}"):
+                ok, code = redeem(current_user, db, item)
+                if ok:
+                    st.success(f"¡Canje hecho! Presenta el cupón `{code}` en el kiosco.")
+                else:
+                    st.error(code)
+    _save_db(db)
+elif page == "Ranking":
+    st.title("Ranking Benessere")
+    db = _load_db()
+    top = leaderboard(db, top_n=10)
+    if not top:
+        st.info("Aún no hay usuarios con puntos.")
+    for i, u in enumerate(top, 1):
+        st.write(f"**#{i}** — {u.get('name','(sin nombre)')} — {u.get('points',0)} pts")
 
 else:
     st.title("Más detalles")

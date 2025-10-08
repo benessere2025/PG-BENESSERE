@@ -757,18 +757,8 @@ with st.container():
     )
 # -----------------------------------------------------
 
-
-st.components.v1.html(
-    build_wheel_html_anim(
-        labels,
-        start_deg=spin["start"],
-        end_deg=spin["end"],
-        duration_ms=3200,
-        sound=st.session_state.get("wheel_sound", True)
-    ),
-    height=420
 )
-    with colB:
+  with colB:
     if can_spin_today(u):
         if st.button("🎡 Girar la ruleta", key="spin_button"):
             # el resto de tu código igual

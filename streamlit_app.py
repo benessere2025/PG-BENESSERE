@@ -159,7 +159,7 @@ elif page == "Nosotros":
     cols = st.columns(3)
     for i, m in enumerate(team):
         with cols[i % 3]:
-            _safe_image(m["img"], use_container_width=True
+           _safe_image(m["img"], use_container_width=True)
             st.markdown(f"**{m['name']}**")
             st.caption(m["role"])
 

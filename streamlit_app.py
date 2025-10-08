@@ -768,7 +768,6 @@ st.components.v1.html(
     ),
     height=420
 )
-
     with colB:
     if can_spin_today(u):
         if st.button("🎡 Girar la ruleta", key="spin_button"):

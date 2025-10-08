@@ -33,7 +33,7 @@ def load_menu():
 
 st.set_page_config(page_title="Benessere", page_icon=str(IMG/"logo.jpg"), layout="wide")
 
-st.markdown("""
+# 🔧 CORREGIDO: un solo st.markdown con el CSS (el duplicado causaba el error)
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -67,8 +67,6 @@ p { color: var(--muted); }
 /* Limpieza UI Streamlit */
 #MainMenu, header, footer {visibility: hidden;}
 </style>
-""", unsafe_allow_html=True)
-
 """, unsafe_allow_html=True)
 
 def _find_image(filename: str):
@@ -191,7 +189,6 @@ elif page == "Ubicación":
     )
     st.write("Horario: **9:00 – 21:00**")
 
-
 else:
     st.title("Más detalles")
     with st.expander("¿Qué hace diferente a Benessere?", expanded=True):
@@ -200,9 +197,11 @@ else:
         st.write("Pickup en kiosco y pedido por WhatsApp.")
     with st.expander("¿Personalización?"):
         st.write("Elige base, toppings y crunch a tu gusto.")
+
 st.markdown(
     '<a style="position:fixed;right:18px;bottom:18px;background:#25D366;color:#0b1a0f;'
     'padding:10px 14px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:9999;" '
     'href="https://wa.me/59176073314?text=Hola%20Benessere,%20quiero%20hacer%20un%20pedido" target="_blank">'
     'WhatsApp</a>', unsafe_allow_html=True
 )
+

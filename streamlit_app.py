@@ -1,4 +1,4 @@
-# app.py / streamlit_app.py
+s# app.py / streamlit_app.py
 
 import json
 import random
@@ -522,13 +522,26 @@ else:
 
 # -------------------------- Páginas -----------------------------
 if page == "Inicio":
+    # ----- Encabezado -----
     col1, col2 = st.columns([1.2, 1])
     with col1:
         st.title("Bienestar que se come")
         st.write("Bowls de **Açaí Zero** (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
     with col2:
-        _safe_image("bowl2.jpg", use_container_width=True)
+        _safe_image("bowl.jpg", use_container_width=True)
 
+    # ----- Sección de imágenes lado a lado -----
+    st.markdown("### ")
+    st.markdown("### ")
+    st.markdown("### Nuestro espacio y producto")
+
+    img_col1, img_col2 = st.columns(2)
+    with img_col1:
+        _safe_image("bowl.jpg", use_container_width=True)  # Imagen del bowl
+    with img_col2:
+        _safe_image("kiosk.jpg", use_container_width=True)  # Imagen del kiosco
+
+    # ----- Destacados -----
     st.markdown("### Destacados")
     cols = st.columns(4)
     sample = []
@@ -540,6 +553,8 @@ if page == "Inicio":
                 f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
                 f'<span class="price">Bs {it["price"]:.2f}</span></div>',
                 unsafe_allow_html=True,
+            )
+
             )
     _safe_image("kiosk.jpg", width=360)
     _safe_image("bowl.jpg", width=360)

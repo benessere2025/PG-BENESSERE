@@ -544,27 +544,30 @@ if page == "Inicio":
                 unsafe_allow_html=True,
             )
 
-    # ----- Nuestro espacio y producto -----
-    st.markdown("### Nuestro espacio y producto")
+ # ----- Nuestro espacio y producto -----
+st.markdown("### Nuestro espacio y producto")
 
-    img_col1, img_col2 = st.columns(2)
-    with img_col1:
-        _safe_image("bowl.jpg", use_container_width=True)
-    with img_col2:
-        _safe_image("kiosk.jpg", use_container_width=True)
+img_col1, img_col2 = st.columns(2)
+with img_col1:
+    # 🌟 Bowl con brazos y gafas (imagen divertida)
+    _safe_image("bowl_funny.png", use_container_width=True)
+with img_col2:
+    # 🏠 Kiosco (achicado al mismo tamaño visual del bowl)
+    _safe_image("kiosk.jpg", use_container_width=True)
 
-    # ----- Ajuste visual para igualar tamaños -----
-    st.markdown("""
-    <style>
-    /* Ajustar tamaño y proporción uniforme */
-    div[data-testid="column"] img {
-        height: 420px !important;
-        object-fit: cover !important;
-        border-radius: 18px !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# ----- Ajuste visual para igualar tamaños -----
+st.markdown("""
+<style>
+/* Tamaño uniforme (más pequeño para que el kiosco no se vea más alto) */
+div[data-testid="column"] img {
+    height: 360px !important;          /* 🔹 altura reducida para igualar visualmente ambas */
+    object-fit: cover !important;
+    border-radius: 18px !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 elif page == "Repertorio":
     st.title("Repertorio")

@@ -20,20 +20,31 @@ st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layo
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root { --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF; }
-html, body, .main { background-color: var(--bg) !important; color: var(--text) !important; font-family: 'Inter', sans-serif !important; }
-.block-container { max-width: 1200px; padding-top: 0.8rem; }
-h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
-p { color: var(--muted); }
-.card{ background: var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; margin:.6rem 0; box-shadow:0 6px 18px rgba(0,0,0,.18); transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
-.card:hover{ transform: translateY(-2px); box-shadow:0 10px 22px rgba(0,0,0,.26); border-color:#3a2b57; }
-.price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; color:var(--text); }
-.product-img img{ border-radius:12px; width:120px; height:120px; object-fit:cover; border:1px solid var(--border); }
-.team-card img{ border-radius:18px; width:100%; height:220px; object-fit:cover; border:1px solid var(--border); }
-section[data-testid="stSidebar"] { background-color:#1b0f2b !important; color:var(--text) !important; }
-#MainMenu, header, footer { visibility: hidden; }
+:root {
+  --bg: #0f0718;
+  --card: #1b0f2b;
+  --border: #2a1b40;
+  --text: #ECE8F7;
+  --muted: #B7A8D9;
+  --accent: #7C4DFF;
+}
+
+html, body, .main {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.block-container {
+  max-width: 1200px;
+  padding-top: 0.8rem;
+}
+
+/* ... resto de tu CSS ... */
+
 </style>
 """, unsafe_allow_html=True)
+
 
 .block-container {
   max-width: 1200px;

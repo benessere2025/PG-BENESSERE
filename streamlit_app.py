@@ -558,9 +558,8 @@ with img_col2:
 # ----- Ajuste visual para igualar tamaños -----
 st.markdown("""
 <style>
-/* Tamaño uniforme (más pequeño para que el kiosco no se vea más alto) */
 div[data-testid="column"] img {
-    height: 360px !important;          /* 🔹 altura reducida para igualar visualmente ambas */
+    height: 360px !important;
     object-fit: cover !important;
     border-radius: 18px !important;
     box-shadow: 0 6px 18px rgba(0,0,0,0.25);

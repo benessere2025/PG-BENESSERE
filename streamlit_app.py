@@ -29,7 +29,6 @@ html, body, .main { background: var(--bg); color: var(--text); font-family: 'Int
 h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
 p { color: var(--muted); }
 
-/* Tarjetas */
 .card{
   background: var(--card);
   border: 1px solid var(--border);
@@ -46,7 +45,6 @@ p { color: var(--muted); }
 }
 .price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
 
-/* Imagen de producto */
 .product-img img{
   border-radius: 12px;
   width: 120px;
@@ -55,7 +53,6 @@ p { color: var(--muted); }
   border:1px solid var(--border);
 }
 
-/* Avatar equipo */
 .team-card img{
   border-radius: 18px;
   width: 100%;
@@ -64,7 +61,6 @@ p { color: var(--muted); }
   border:1px solid var(--border);
 }
 
-/* Limpieza UI Streamlit */
 #MainMenu, header, footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)

@@ -17,8 +17,10 @@ MENU_PATH = ROOT / "data" / "menu.json"
 st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layout="wide")
 
 # --------------------------- Estilos ----------------------------
+# --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
 :root {
   --bg: #0f0718;
@@ -29,22 +31,12 @@ st.markdown("""
   --accent: #7C4DFF;
 }
 
+/* Fondo oscuro global (forzamos el color base) */
 html, body, .main {
   background-color: var(--bg) !important;
   color: var(--text) !important;
   font-family: 'Inter', sans-serif !important;
 }
-
-.block-container {
-  max-width: 1200px;
-  padding-top: 0.8rem;
-}
-
-/* ... resto de tu CSS ... */
-
-</style>
-""", unsafe_allow_html=True)
-
 
 .block-container {
   max-width: 1200px;

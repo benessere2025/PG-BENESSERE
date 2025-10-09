@@ -553,6 +553,7 @@ with img_col1:
 with img_col2:
     _safe_image("kiosk.jpg", use_container_width=True)
 
+# Ajuste visual para igualar tamaño
 st.markdown("""
 <style>
 div[data-testid="column"] img {

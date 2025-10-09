@@ -22,13 +22,35 @@ st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
+  --bg:#0f0718;
+  --card:#1b0f2b;
+  --border:#2a1b40;
+  --text:#ECE8F7;
+  --muted:#B7A8D9;
+  --accent:#7C4DFF;
 }
-html, body, .main { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-.block-container { max-width: 1200px; padding-top: 0.8rem; }
-h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
-p { color: var(--muted); }
 
+html, body, .main {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+.block-container {
+  max-width: 1200px;
+  padding-top: 0.8rem;
+}
+
+h1,h2,h3,h4 {
+  color: var(--text);
+  letter-spacing: .2px;
+}
+
+p {
+  color: var(--muted);
+}
+
+/* Tarjetas */
 .card{
   background: var(--card);
   border: 1px solid var(--border);
@@ -38,13 +60,21 @@ p { color: var(--muted); }
   box-shadow: 0 6px 18px rgba(0,0,0,.18);
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
+
 .card:hover{
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(0,0,0,.26);
   border-color:#3a2b57;
 }
-.price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
 
+.price{
+  background:rgba(124,77,255,.18);
+  padding:.25rem .7rem;
+  border-radius:999px;
+  font-weight:600;
+}
+
+/* Imagen de producto */
 .product-img img{
   border-radius: 12px;
   width: 120px;
@@ -53,6 +83,7 @@ p { color: var(--muted); }
   border:1px solid var(--border);
 }
 
+/* Avatar del equipo */
 .team-card img{
   border-radius: 18px;
   width: 100%;
@@ -61,7 +92,10 @@ p { color: var(--muted); }
   border:1px solid var(--border);
 }
 
-#MainMenu, header, footer {visibility: hidden;}
+/* Oculta menú y footer de Streamlit */
+#MainMenu, header, footer {
+  visibility: hidden;
+}
 </style>
 """, unsafe_allow_html=True)
 

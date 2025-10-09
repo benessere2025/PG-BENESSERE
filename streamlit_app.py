@@ -20,8 +20,9 @@ st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layo
 # --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
-:root{
+:root {
   --bg:#0f0718;
   --card:#1b0f2b;
   --border:#2a1b40;
@@ -41,7 +42,7 @@ html, body, .main {
   padding-top: 0.8rem;
 }
 
-h1,h2,h3,h4 {
+h1, h2, h3, h4 {
   color: var(--text);
   letter-spacing: .2px;
 }
@@ -50,8 +51,7 @@ p {
   color: var(--muted);
 }
 
-/* Tarjetas */
-.card{
+.card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -61,44 +61,40 @@ p {
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
 
-.card:hover{
+.card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(0,0,0,.26);
-  border-color:#3a2b57;
+  border-color: #3a2b57;
 }
 
-.price{
-  background:rgba(124,77,255,.18);
-  padding:.25rem .7rem;
-  border-radius:999px;
-  font-weight:600;
+.price {
+  background: rgba(124,77,255,.18);
+  padding: .25rem .7rem;
+  border-radius: 999px;
+  font-weight: 600;
 }
 
-/* Imagen de producto */
-.product-img img{
+.product-img img {
   border-radius: 12px;
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
 }
 
-/* Avatar del equipo */
-.team-card img{
+.team-card img {
   border-radius: 18px;
   width: 100%;
   height: 220px;
   object-fit: cover;
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
 }
 
-/* Oculta menú y footer de Streamlit */
 #MainMenu, header, footer {
   visibility: hidden;
 }
 </style>
 """, unsafe_allow_html=True)
-
 # ------------------------- Utilidades ---------------------------
 def _find_image(filename: str):
     candidates = [

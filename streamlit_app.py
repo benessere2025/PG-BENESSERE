@@ -544,18 +544,15 @@ if page == "Inicio":
                 unsafe_allow_html=True,
             )
 
- # ----- Nuestro espacio y producto -----
+# ----- Nuestro espacio y producto -----
 st.markdown("### Nuestro espacio y producto")
 
 img_col1, img_col2 = st.columns(2)
 with img_col1:
-    # 🌟 Bowl con brazos y gafas (imagen divertida)
     _safe_image("bowl_funny.png", use_container_width=True)
 with img_col2:
-    # 🏠 Kiosco (achicado al mismo tamaño visual del bowl)
     _safe_image("kiosk.jpg", use_container_width=True)
 
-# ----- Ajuste visual para igualar tamaños -----
 st.markdown("""
 <style>
 div[data-testid="column"] img {

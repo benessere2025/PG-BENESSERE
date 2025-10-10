@@ -17,7 +17,6 @@ MENU_PATH = ROOT / "data" / "menu.json"
 st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layout="wide")
 
 # --------------------------- Estilos ----------------------------
-# --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
@@ -521,7 +520,6 @@ else:
     st.sidebar.info("Inicia sesión para usar Recompensas y Canjeo.")
 
 # -------------------------- Páginas -----------------------------
-# -------------------------- Páginas -----------------------------
 if page == "Inicio":
     # ----- Encabezado -----
     col1, col2 = st.columns([1.2, 1])
@@ -547,7 +545,6 @@ if page == "Inicio":
 
     # ----- Nuestro espacio y producto -----
     st.markdown("### Nuestro espacio y producto")
-
     img_col1, img_col2 = st.columns(2)
     with img_col1:
         _safe_image("bowl_funny.png", use_container_width=True)   # nueva imagen
@@ -565,31 +562,6 @@ if page == "Inicio":
     }
     </style>
     """, unsafe_allow_html=True)
-
-elif page == "Repertorio":
-
-
-# ----- Nuestro espacio y producto -----
-st.markdown("### Nuestro espacio y producto")
-
-img_col1, img_col2 = st.columns(2)
-with img_col1:
-    _safe_image("bowl_funny.png", use_container_width=True)
-with img_col2:
-    _safe_image("kiosk.jpg", use_container_width=True)
-
-# Ajuste visual para igualar tamaño
-st.markdown("""
-<style>
-div[data-testid="column"] img {
-    height: 360px !important;
-    object-fit: cover !important;
-    border-radius: 18px !important;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-}
-</style>
-""", unsafe_allow_html=True)
-
 
 elif page == "Repertorio":
     st.title("Repertorio")

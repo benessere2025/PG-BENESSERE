@@ -503,7 +503,7 @@ if page == "Inicio":
                 unsafe_allow_html=True,
             )
     _safe_image("kiosk.jpg", width=360)
-    _safe_image("bowl.jpg", width=360)
+    _safe_image("bowl_funny.jpg", width=360)
 
 elif page == "Repertorio":
     st.title("Repertorio")

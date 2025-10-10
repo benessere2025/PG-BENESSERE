@@ -1,4 +1,5 @@
 # app.py / streamlit_app.py
+
 import json
 import random
 import hashlib
@@ -19,40 +20,17 @@ st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layo
 # --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg: #0f0718;
-  --card: #1b0f2b;
-  --border: #2a1b40;
-  --text: #ECE8F7;
-  --muted: #B7A8D9;
-  --accent: #7C4DFF;
+:root{
+  --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
 }
-
-/* Fondo oscuro global (forzamos el color base) */
-html, body, .main {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: 'Inter', sans-serif !important;
-}
-
-.block-container {
-  max-width: 1200px;
-  padding-top: 0.8rem;
-}
-
-h1, h2, h3, h4 {
-  color: var(--text);
-  letter-spacing: .2px;
-}
-
-p {
-  color: var(--muted);
-}
+html, body, .main { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+.block-container { max-width: 1200px; padding-top: 0.8rem; }
+h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
+p { color: var(--muted); }
 
 /* Tarjetas */
-.card {
+.card{
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -61,72 +39,55 @@ p {
   box-shadow: 0 6px 18px rgba(0,0,0,.18);
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
-
-.card:hover {
+.card:hover{
   transform: translateY(-2px);
   box-shadow: 0 10px 22px rgba(0,0,0,.26);
-  border-color: #3a2b57;
+  border-color:#3a2b57;
 }
-
-.price {
-  background: rgba(124,77,255,.18);
-  padding: .25rem .7rem;
-  border-radius: 999px;
-  font-weight: 600;
-  color: var(--text);
-}
+.price{ background:rgba(124,77,255,.18); padding:.25rem .7rem; border-radius:999px; font-weight:600; }
 
 /* Imagen de producto */
-.product-img img {
+.product-img img{
   border-radius: 12px;
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
 }
 
 /* Avatar equipo */
-.team-card img {
+.team-card img{
   border-radius: 18px;
   width: 100%;
   height: 220px;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
 }
 
-/* Sidebar oscuro */
-section[data-testid="stSidebar"] {
-  background-color: #1b0f2b !important;
-  color: var(--text) !important;
-}
-
-/* Oculta menú y footer de Streamlit */
-#MainMenu, header, footer {
-  visibility: hidden;
-}
+/* Limpieza UI Streamlit */
+#MainMenu, header, footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
 # ------------------------- Utilidades ---------------------------
-# ✅ Reemplazá tu _safe_image por esta
-def _safe_image(filename, **kwargs):
-    """
-    Muestra una imagen. Acepta:
-      - str: nombre único de archivo
-      - list/tuple[str]: nombres candidatos (usa el primero que exista)
-    """
-    candidates = filename if isinstance(filename, (list, tuple)) else [filename]
-    for name in candidates:
-        p = _find_image(name)
-        if p:
-            st.image(p, **kwargs)
-            return
-    # Si ninguna existe, mostrar aviso
-    try:
-        missing = ", ".join(map(str, candidates))
-    except Exception:
-        missing = str(candidates)
-    st.info(f"[imagen no encontrada: {missing}]")
+def _find_image(filename: str):
+    candidates = [
+        IMG / filename,
+        Path.cwd() / "static" / "images" / filename,
+        ROOT / "static" / "images" / filename,
+        Path(filename),
+    ]
+    for p in candidates:
+        if p.exists():
+            return str(p)
+    return None
+
+def _safe_image(filename: str, **kwargs):
+    p = _find_image(filename)
+    if p:
+        st.image(p, **kwargs)
+    else:
+        st.info(f"[imagen no encontrada: {filename}]")
 
 def load_menu():
     candidates = [MENU_PATH, Path.cwd() / "data" / "menu.json", ROOT / "data" / "menu.json"]
@@ -481,22 +442,7 @@ def verify_healthy_food(file) -> bool:
         return False
 
 # --------------------- Sidebar / Sesión -------------------------
-# Mostrar el logo en el sidebar (robusto, sin depender de helpers)
-from pathlib import Path
-
-logo_candidates = [
-    IMG / "logo.jpg",
-    ROOT / "static" / "images" / "logo.jpg",
-    Path.cwd() / "static" / "images" / "logo.jpg",
-    Path("logo.jpg"),
-]
-logo_path = next((str(p) for p in logo_candidates if p.exists()), None)
-if logo_path:
-    st.sidebar.image(logo_path, width=140)
-else:
-    # si no existe, no rompas la app
-    st.sidebar.write("")
-
+st.sidebar.image(_find_image("logo.jpg"), width=140)
 page = st.sidebar.radio(
     "Navegación",
     ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Recompensas", "Zona de canjeo", "Ranking", "Más detalles"]
@@ -537,7 +483,6 @@ else:
 
 # -------------------------- Páginas -----------------------------
 if page == "Inicio":
-    # ----- Encabezado -----
     col1, col2 = st.columns([1.2, 1])
     with col1:
         st.title("Bienestar que se come")
@@ -545,7 +490,6 @@ if page == "Inicio":
     with col2:
         _safe_image("bowl2.jpg", use_container_width=True)
 
-    # ----- Destacados -----
     st.markdown("### Destacados")
     cols = st.columns(4)
     sample = []
@@ -558,27 +502,8 @@ if page == "Inicio":
                 f'<span class="price">Bs {it["price"]:.2f}</span></div>',
                 unsafe_allow_html=True,
             )
-
-       # ----- Nuestro espacio y producto -----
-    st.markdown("### Nuestro espacio y producto")
-
-    img_col1, img_col2 = st.columns(2)
-    with img_col1:
-        _safe_image(["acai_cool.png", "bowl_funny.png", "acai_funny.png"], use_container_width=True)
-    with img_col2:
-        _safe_image("kiosk.jpg", use_container_width=True)
-
-    # Ajuste visual para igualar tamaño (kiosco achicado al mismo alto)
-    st.markdown("""
-    <style>
-    div[data-testid="column"] img {
-        height: 360px !important;
-        object-fit: cover !important;
-        border-radius: 18px !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    _safe_image("kiosk.jpg", width=360)
+    _safe_image("bowl.jpg", width=360)
 
 elif page == "Repertorio":
     st.title("Repertorio")
@@ -603,7 +528,6 @@ elif page == "Repertorio":
                     unsafe_allow_html=True,
                 )
             st.markdown('</div>', unsafe_allow_html=True)
-
 
 elif page == "Nosotros":
     st.title("Nuestro equipo")

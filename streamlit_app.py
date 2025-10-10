@@ -568,7 +568,6 @@ if page == "Inicio":
 
 elif page == "Repertorio":
 
-            )
 
 # ----- Nuestro espacio y producto -----
 st.markdown("### Nuestro espacio y producto")

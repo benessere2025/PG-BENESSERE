@@ -554,7 +554,7 @@ with img_col2:
         # kiosco
 
     # Ajuste visual para igualar tamaño (kiosco achicado al mismo alto)
-    st.markdown("""
+       st.markdown("""
     <style>
     div[data-testid="column"] img {
         height: 360px !important;
@@ -564,6 +564,8 @@ with img_col2:
     }
     </style>
     """, unsafe_allow_html=True)
+
+# <-- IMPORTANTE: no dejar espacios ni tabulaciones acá
 
 elif page == "Repertorio":
     st.title("Repertorio")
@@ -588,6 +590,7 @@ elif page == "Repertorio":
                     unsafe_allow_html=True,
                 )
             st.markdown('</div>', unsafe_allow_html=True)
+
 
 elif page == "Nosotros":
     st.title("Nuestro equipo")

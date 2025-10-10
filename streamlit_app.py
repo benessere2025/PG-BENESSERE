@@ -638,7 +638,6 @@ elif page == "Recompensas":
         spin_state = st.session_state["spin"]
 
         st.checkbox(
-            "🔊 Sonido de ruleta",
             key="wheel_sound",
             value=st.session_state.get("wheel_sound", True)
         )

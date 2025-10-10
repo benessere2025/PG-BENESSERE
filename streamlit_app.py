@@ -20,54 +20,14 @@ st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layo
 # --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
 <style>
-:root {
-  --bg: #0f0718;
-  --card: #1b0f2b;
-  --border: #2a1b40;
-  --text: #ECE8F7;
-  --muted: #B7A8D9;
-  --accent: #7C4DFF;
+:root{
+  --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
 }
-
-/* Fondo oscuro global */
-html, body, .main {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-  font-family: 'Inter', sans-serif !important;
-}
-
-.block-container {
-  max-width: 1200px;
-  padding-top: 0.8rem;
-}
-
-/* Tarjetas */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 14px;
-  margin: .6rem 0;
-  box-shadow: 0 6px 18px rgba(0,0,0,.18);
-}
-
-/* Avatar equipo */
-.team-card img {
-  border-radius: 18px;
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-}
-
-/* Limpieza UI Streamlit */
-#MainMenu, header, footer { visibility: hidden; }
-</style>
-""", unsafe_allow_html=True)
-
-
+html, body, .main { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+.block-container { max-width: 1200px; padding-top: 0.8rem; }
+h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
+p { color: var(--muted); }
 
 /* Tarjetas */
 .card{
@@ -543,7 +503,7 @@ if page == "Inicio":
                 unsafe_allow_html=True,
             )
     _safe_image("kiosk.jpg", width=360)
-    _safe_image("bowl_funny.jpg].jpg", width=360)
+    _safe_image("bowl.jpg", width=360)
 
 elif page == "Repertorio":
     st.title("Repertorio")
@@ -676,12 +636,20 @@ elif page == "Recompensas":
         if "spin" not in st.session_state:
             st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
         spin_state = st.session_state["spin"]
+
+        st.checkbox(
+            "🔊 Sonido de ruleta",
+            key="wheel_sound",
+            value=st.session_state.get("wheel_sound", True)
+        )
+
         st.components.v1.html(
             build_wheel_html_anim(
                 labels,
                 start_deg=spin_state["start"],
                 end_deg=spin_state["end"],
                 duration_ms=3200,
+                sound=st.session_state.get("wheel_sound", True)
             ),
             height=420
         )

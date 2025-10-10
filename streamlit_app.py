@@ -20,14 +20,41 @@ st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layo
 # --------------------------- Estilos ----------------------------
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
 <style>
-:root{
-  --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
+:root {
+  --bg: #0f0718;
+  --card: #1b0f2b;
+  --border: #2a1b40;
+  --text: #ECE8F7;
+  --muted: #B7A8D9;
+  --accent: #7C4DFF;
 }
-html, body, .main { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
-.block-container { max-width: 1200px; padding-top: 0.8rem; }
-h1,h2,h3,h4 { color: var(--text); letter-spacing: .2px; }
-p { color: var(--muted); }
+
+/* Fondo oscuro global */
+html, body, .main {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Tarjetas y elementos */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+
+/* Avatar equipo */
+.team-card img {
+  border-radius: 18px;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+/* Limpieza UI Streamlit */
+#MainMenu, header, footer { visibility: hidden; }
+</style>
+""", unsafe_allow_html=True)
+
 
 /* Tarjetas */
 .card{

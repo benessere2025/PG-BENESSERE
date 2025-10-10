@@ -642,7 +642,6 @@ elif page == "Recompensas":
                 start_deg=spin_state["start"],
                 end_deg=spin_state["end"],
                 duration_ms=3200,
-                sound=st.session_state.get("wheel_sound", True)
             ),
             height=420
         )

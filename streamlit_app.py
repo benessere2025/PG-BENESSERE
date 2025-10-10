@@ -38,8 +38,20 @@ html, body, .main {
   font-family: 'Inter', sans-serif !important;
 }
 
-/* Tarjetas y elementos */
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+.block-container {
+  max-width: 1200px;
+  padding-top: 0.8rem;
+}
+
+/* Tarjetas */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin: .6rem 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
 
 /* Avatar equipo */
 .team-card img {
@@ -54,6 +66,7 @@ html, body, .main {
 #MainMenu, header, footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 /* Tarjetas */

@@ -481,7 +481,7 @@ def verify_healthy_food(file) -> bool:
         return False
 
 # --------------------- Sidebar / Sesión -------------------------
-st.sidebar.image(_find_image("logo.jpg"), width=140)
+_safe_sidebar_image("logo.jpg", width=140)
 page = st.sidebar.radio(
     "Navegación",
     ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Recompensas", "Zona de canjeo", "Ranking", "Más detalles"]

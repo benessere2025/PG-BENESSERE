@@ -547,7 +547,9 @@ if page == "Inicio":
     st.markdown("### Nuestro espacio y producto")
     img_col1, img_col2 = st.columns(2)
     with img_col1:
-        _safe_image("bowl_funny.png", use_container_width=True)   # nueva imagen
+    # pruebo varios nombres comunes; si no hay archivo, dibuja el SVG
+    _safe_image(["acai_cool.png", "bowl_funny.png", "acai_funny.png"], use_container_width=True)
+   # nueva imagen
     with img_col2:
         _safe_image("kiosk.jpg", use_container_width=True)         # kiosco
 

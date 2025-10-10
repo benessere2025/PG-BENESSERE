@@ -636,11 +636,6 @@ elif page == "Recompensas":
         if "spin" not in st.session_state:
             st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
         spin_state = st.session_state["spin"]
-        st.checkbox(
-            key="wheel_sound",
-            value=st.session_state.get("wheel_sound", True)
-        )
-
         st.components.v1.html(
             build_wheel_html_anim(
                 labels,

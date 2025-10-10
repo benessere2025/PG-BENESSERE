@@ -481,7 +481,22 @@ def verify_healthy_food(file) -> bool:
         return False
 
 # --------------------- Sidebar / Sesión -------------------------
-_safe_sidebar_image("logo.jpg", width=140)
+# Mostrar el logo en el sidebar (robusto, sin depender de helpers)
+from pathlib import Path
+
+logo_candidates = [
+    IMG / "logo.jpg",
+    ROOT / "static" / "images" / "logo.jpg",
+    Path.cwd() / "static" / "images" / "logo.jpg",
+    Path("logo.jpg"),
+]
+logo_path = next((str(p) for p in logo_candidates if p.exists()), None)
+if logo_path:
+    st.sidebar.image(logo_path, width=140)
+else:
+    # si no existe, no rompas la app
+    st.sidebar.write("")
+
 page = st.sidebar.radio(
     "Navegación",
     ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Recompensas", "Zona de canjeo", "Ranking", "Más detalles"]

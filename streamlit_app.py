@@ -66,11 +66,6 @@ p { color: var(--muted); }
 
 /* Limpieza UI Streamlit */
 #MainMenu, header, footer {visibility: hidden;}
-
-/* Ocultar solo el título "Bienestar que se come" */
-.ocultar-titulo {
-  display: none;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -395,4 +390,352 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
         requestAnimationFrame(() => {{
           wheel.style.transition = 'transform ' + duration + 'ms cubic-bezier(.17,.67,.29,1.27)';
           playSpin();
-          wheel.addEventListener('transitionend', () => {{ stopSpin(); playPop(); }},
+          wheel.addEventListener('transitionend', () => {{ stopSpin(); playPop(); }}, {{ once:true }});
+          wheel.style.transform = rotate(${{end}}deg);
+        }});
+      }})();
+    </script>
+    """
+    return html_code
+
+def build_wheel_html(labels, angle):
+    # compat: render sin animación
+    return build_wheel_html_anim(labels, start_deg=angle, end_deg=angle, duration_ms=0, sound=False)
+
+# ----------- Verificación básica de imágenes (opcional) ----------
+def _try_import_pil_numpy():
+    try:
+        from PIL import Image
+        import numpy as np
+        return Image, np
+    except Exception:
+        return None, None
+
+def verify_gym_photo(file) -> bool:
+    Image, np = _try_import_pil_numpy()
+    if not Image:  # fallback si no hay PIL/numpy
+        return True
+    try:
+        img = Image.open(file).convert("RGB")
+        if img.width < 300 or img.height < 300:
+            return False
+        gray = img.convert("L")
+        arr = np.array(gray, dtype=np.float32)
+        return float(arr.var()) > 300.0
+    except Exception:
+        return False
+
+def verify_healthy_food(file) -> bool:
+    Image, np = _try_import_pil_numpy()
+    if not Image:
+        return True
+    try:
+        img = Image.open(file).convert("RGB").resize((256,256))
+        arr = np.asarray(img) / 255.0
+        r,g,b = arr[:,:,0], arr[:,:,1], arr[:,:,2]
+        green_mask = (g > 0.35) & (g > r+0.05) & (g > b+0.05)
+        green_ratio = green_mask.mean()
+        maxc = arr.max(axis=2); minc = arr.min(axis=2)
+        sat = (maxc - minc).mean()
+        return (green_ratio > 0.20 and sat > 0.15)
+    except Exception:
+        return False
+
+# --------------------- Sidebar / Sesión -------------------------
+st.sidebar.image(_find_image("logo.jpg"), width=140)
+page = st.sidebar.radio(
+    "Navegación",
+    ["Inicio", "Repertorio", "Nosotros", "Ubicación", "Recompensas", "Zona de canjeo", "Ranking", "Más detalles"]
+)
+st.sidebar.markdown(
+    '<div class="btn"><a target="_blank" href="https://wa.me/59176073314?text=Hola,%20quiero%20pedir%20un%20Açaí%20Zero%20180g%20y%20un%20Açaí%20Zero%20120g.">Pedir por WhatsApp</a></div>',
+    unsafe_allow_html=True,
+)
+st.sidebar.write("Horario: *9:00 – 21:00*")
+
+db = _load_db()
+default_name = st.session_state.get("name", "")
+name = st.sidebar.text_input("Tu nombre o celular", value=default_name, placeholder="Ej: 76073314")
+ref_in = st.sidebar.text_input("Código de referido (opcional)", value=st.session_state.get("ref", ""))
+
+if st.sidebar.button("Entrar"):
+    if not name.strip():
+        st.sidebar.error("Ingresa tu nombre o celular")
+    else:
+        uid = _uid(name)
+        st.session_state["uid"] = uid
+        st.session_state["name"] = name.strip()
+        u = get_user(db, uid)
+        if not u["name"]:
+            u["name"] = name.strip()
+            # referidos: simple (si quieres sumar puntos aquí, puedes hacerlo)
+        _save_db(db)
+        st.sidebar.success(f"¡Hola, {name}! Tu código: {get_user(db, uid)['ref_code']}")
+
+uid = st.session_state.get("uid")
+current_user = get_user(db, uid) if uid else None
+
+if current_user:
+    st.sidebar.markdown(f"*Benessere Points:* {current_user['points']}")
+    st.sidebar.caption(f"Código de referidos: {current_user['ref_code']}")
+else:
+    st.sidebar.info("Inicia sesión para usar Recompensas y Canjeo.")
+
+# -------------------------- Páginas -----------------------------
+if page == "Inicio":
+    col1, col2 = st.columns([1.2, 1])
+    with col1:
+        st.title("Bienestar que se come")
+        st.write("Bowls de *Açaí Zero* (120g/180g), ensaladas, cereales y jugos 100% naturales. Ideal para campus.")
+    with col2:
+        _safe_image("bowl2.jpg", use_container_width=True)
+
+    st.markdown("### Destacados")
+    cols = st.columns(4)
+    sample = []
+    for cat in MENU.values():
+        sample += cat[:2]
+    for i, it in enumerate(sample[:4]):
+        with cols[i]:
+            st.markdown(
+                f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
+                f'<span class="price">Bs {it["price"]:.2f}</span></div>',
+                unsafe_allow_html=True,
+            )
+    _safe_image("kiosk.jpg", width=360)
+    _safe_image("bowl_funny.jpg].jpg", width=360)
+
+elif page == "Repertorio":
+    st.title("Repertorio")
+    order = ["bowls", "cereales", "bebidas"]
+    for cat in order:
+        if cat not in MENU:
+            continue
+        items = MENU[cat]
+        st.subheader(cat.capitalize())
+        for it in items:
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            c1, c2 = st.columns([1, 3])
+            with c1:
+                st.markdown('<div class="product-img">', unsafe_allow_html=True)
+                _safe_image(it.get("img", ""), use_container_width=True)
+                st.markdown('</div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"### {it['name']}")
+                st.write(it.get("desc", ""))
+                st.markdown(
+                    f'<span class="price">Bs {float(it["price"]):.2f}</span>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown('</div>', unsafe_allow_html=True)
+
+elif page == "Nosotros":
+    st.title("Nuestro equipo")
+    st.write("Conoce a las personas detrás de Benessere. Energía, servicio y buena vibra todos los días en la Univalle.")
+    team = [
+        {"name": "Daniel S", "role": "CEO", "img": "team_1.jpg"},
+        {"name": "Luis V", "role": "CFO", "img": "team_2.jpg"},
+        {"name": "Antonio G", "role": "DCI", "img": "team_3.jpg"},
+        {"name": "Bruno C", "role": "COO", "img": "team_4.jpg"},
+        {"name": "Nicolas D", "role": "CMO", "img": "team_5.jpg"},
+    ]
+    cols = st.columns(3)
+    for i, m in enumerate(team):
+        with cols[i % 3]:
+            _safe_image(m["img"], use_container_width=True)
+            st.markdown(f"{m['name']}")
+            st.caption(m["role"])
+
+elif page == "Ubicación":
+    st.title("Ubicación")
+    st.write("Benessere — Campus *Universidad Privada del Valle (Santa Cruz de la Sierra)*.")
+    _safe_image("univalle_sc.jpg", use_container_width=True)
+    html(
+        """
+        <iframe
+          src="https://www.google.com/maps?q=Universidad%20Privada%20del%20Valle%20Santa%20Cruz%20de%20la%20Sierra&output=embed"
+          width="100%" height="380" style="border:0;border-radius:16px;"
+          allowfullscreen="" loading="lazy"></iframe>
+        """,
+        height=400,
+    )
+    st.markdown(
+        '<div class="btn"><a target="_blank" href="https://www.google.com/maps/search/?api=1&query=Universidad%20Privada%20del%20Valle%20Santa%20Cruz%20de%20la%20Sierra">Abrir en Google Maps</a></div>',
+        unsafe_allow_html=True,
+    )
+    st.write("Horario: *9:00 – 21:00*")
+
+elif page == "Recompensas":
+    st.title("Recompensas")
+    if not current_user:
+        st.warning("Inicia sesión en la barra lateral para usar esta sección.")
+        st.stop()
+
+    u = current_user
+    st.subheader(f"Tus puntos: {u['points']}")
+    if is_happy_hour():
+        st.success("⏰ *Happy Hour* activo: ¡descuentos especiales en tienda por 1 hora!")
+
+    # ------------------ Retos diarios ------------------
+    st.markdown("### Retos diarios")
+    d = ensure_daily(u)
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        steps = st.number_input("Pasos de hoy", min_value=0, value=0, step=500)
+        if st.button("Confirmar 7.000 pasos"):
+            if steps >= 7000 and not d["steps_done"]:
+                d["steps_done"] = True
+                add_points(u, db, 30, "Reto diario: pasos")
+                st.success("Reto completado +30 pts")
+            else:
+                st.info("Aún no llegas a 7.000 pasos o ya completaste el reto.")
+
+    with c2:
+        st.caption("Sube foto en el gym o haciendo actividad física")
+        gym_file = st.file_uploader("Foto de actividad física", type=["jpg","jpeg","png"], key="gym_up")
+        if st.button("Validar foto de actividad"):
+            if d["gym_done"]:
+                st.info("Este reto ya está completado hoy.")
+            elif not gym_file:
+                st.error("Sube una foto primero.")
+            else:
+                ok = verify_gym_photo(gym_file)
+                if ok:
+                    d["gym_done"] = True
+                    add_points(u, db, 30, "Reto diario: actividad física (foto)")
+                    st.success("Foto válida ✔ +30 pts")
+                else:
+                    st.error("No parece una foto válida de actividad física. Intenta otra.")
+
+    with c3:
+        st.caption("Sube foto de snack/comida saludable")
+        food_file = st.file_uploader("Foto de comida saludable", type=["jpg","jpeg","png"], key="food_up")
+        if st.button("Validar comida saludable"):
+            if d["food_done"]:
+                st.info("Este reto ya está completado hoy.")
+            elif not food_file:
+                st.error("Sube una foto primero.")
+            else:
+                ok = verify_healthy_food(food_file)
+                if ok:
+                    d["food_done"] = True
+                    add_points(u, db, 30, "Reto diario: comida saludable (foto)")
+                    st.success("¡Se ve saludable! ✔ +30 pts")
+                else:
+                    st.error("No parece una comida saludable (según verificación básica). Intenta otra.")
+
+    _save_db(db)
+
+    # ------------------ Ruleta del bienestar ------------------
+    st.markdown("### Ruleta del bienestar (diaria)")
+    labels = [r["label"] for r in SPIN_REWARDS]
+    colA, colB = st.columns([2, 1])
+
+    with colA:
+        if "spin" not in st.session_state:
+            st.session_state["spin"] = {"start": 0, "end": 0, "label": None}
+        spin_state = st.session_state["spin"]
+
+        st.checkbox(
+            "🔊 Sonido de ruleta",
+            key="wheel_sound",
+            value=st.session_state.get("wheel_sound", True)
+        )
+
+        st.components.v1.html(
+            build_wheel_html_anim(
+                labels,
+                start_deg=spin_state["start"],
+                end_deg=spin_state["end"],
+                duration_ms=3200,
+                sound=st.session_state.get("wheel_sound", True)
+            ),
+            height=420
+        )
+
+    with colB:
+        if can_spin_today(u):
+            if st.button("🎡 Girar la ruleta", key="spin_button"):
+                weights = [r.get("w", 1) for r in SPIN_REWARDS]
+                prize = random.choices(SPIN_REWARDS, weights=weights, k=1)[0]
+
+                n = len(labels)
+                step = 360 / n
+                idx = labels.index(prize["label"])
+                center = idx * step + (step / 2)
+
+                base = (st.session_state["spin"]["end"] or 0) % 360
+                start = base
+                end = base + 360 * 4 + center
+
+                if prize["points"]:
+                    add_points(u, db, prize["points"], "Ruleta diaria")
+                if prize["coupon"]:
+                    u.setdefault("coupons", []).append(
+                        {"code": prize["coupon"], "ts": _now().isoformat(), "source": "Ruleta"}
+                    )
+                u["last_spin"] = _now().isoformat()
+                _save_db(db)
+
+                st.session_state["spin"] = {"start": start, "end": end, "label": prize["label"]}
+        else:
+            st.info("Ya giraste hoy. Vuelve mañana ✨")
+
+        if st.session_state["spin"]["label"]:
+            st.success(f"Resultado: *{st.session_state['spin']['label']}*")
+
+    # ------------------ Tus cupones ------------------
+    st.markdown("### Tus cupones")
+    if u.get("coupons"):
+        for c in u["coupons"]:
+            st.write(f"- {c['code']} (origen: {c['source']})")
+    else:
+        st.caption("Sin cupones todavía.")
+
+    _save_db(db)
+
+elif page == "Zona de canjeo":
+    st.title("Zona de canjeo")
+    if not current_user:
+        st.warning("Inicia sesión para canjear tus puntos.")
+        st.stop()
+
+    st.subheader(f"Tu balance: {current_user['points']} pts")
+    for item in REDEEM_ITEMS:
+        with st.container():
+            st.markdown(f"{item['name']}** — {item['cost']} pts")
+            if st.button(f"Canjear: {item['name']}", key=f"redeem-{item['name']}"):
+                ok, code = redeem(current_user, db, item)
+                if ok:
+                    st.success(f"¡Canje hecho! Presenta el cupón {code} en el kiosco.")
+                else:
+                    st.error(code)
+    _save_db(db)
+
+elif page == "Ranking":
+    st.title("Ranking Benessere")
+    db = _load_db()
+    top = leaderboard(db, top_n=10)
+    if not top:
+        st.info("Aún no hay usuarios con puntos.")
+    for i, u in enumerate(top, 1):
+        st.write(f"#{i}** — {u.get('name','(sin nombre)')} — {u.get('points',0)} pts")
+
+else:  # Más detalles
+    st.title("Más detalles")
+    with st.expander("¿Qué hace diferente a Benessere?", expanded=True):
+        st.write("Ingredientes reales, tiempos rápidos y diseño premium. Solo *Açaí Zero* en dos tamaños, jugos naturales, ensaladas y cereales.")
+    with st.expander("¿Delivery o pickup?"):
+        st.write("Pickup en kiosco y pedido por WhatsApp.")
+    with st.expander("¿Personalización?"):
+        st.write("Elige base, toppings y crunch a tu gusto.")
+
+# ---------------------- Botón flotante WA ----------------------
+st.markdown(
+    '<a style="position:fixed;right:18px;bottom:18px;background:#25D366;color:#0b1a0f;'
+    'padding:10px 14px;border-radius:999px;font-weight:800;box-shadow:0 8px 20px rgba(0,0,0,.25);z-index:9999;" '
+    'href="https://wa.me/59176073314?text=Hola%20Benessere,%20quiero%20hacer%20un%20pedido" target="_blank">'
+    'WhatsApp</a>',
+    unsafe_allow_html=True,
+)

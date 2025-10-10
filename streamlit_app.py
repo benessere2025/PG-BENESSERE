@@ -395,4 +395,4 @@ def build_wheel_html_anim(labels, start_deg=0, end_deg=0, duration_ms=3200, soun
         requestAnimationFrame(() => {{
           wheel.style.transition = 'transform ' + duration + 'ms cubic-bezier(.17,.67,.29,1.27)';
           playSpin();
-          wheel.addEventListener('transitionend', () => {{ stopSpin();
+          wheel.addEventListener('transitionend', () => {{ stopSpin(); playPop(); }},

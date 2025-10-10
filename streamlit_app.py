@@ -10,7 +10,11 @@ import streamlit as st
 from streamlit.components.v1 import html  # (también usaremos st.components.v1.html)
 
 # ----------------------- Rutas y recursos -----------------------
-ROOT = Path(_file_).parent
+from pathlib import Path
+import os
+
+# Modificar para obtener el directorio actual de trabajo en vez de usar _file_
+ROOT = Path(os.getcwd())  # Usa el directorio actual de trabajo
 IMG = ROOT / "static" / "images"
 MENU_PATH = ROOT / "data" / "menu.json"
 

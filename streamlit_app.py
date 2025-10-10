@@ -546,12 +546,12 @@ if page == "Inicio":
     # ----- Nuestro espacio y producto -----
     st.markdown("### Nuestro espacio y producto")
     img_col1, img_col2 = st.columns(2)
-    with img_col1:
-    # pruebo varios nombres comunes; si no hay archivo, dibuja el SVG
+    img_col1, img_col2 = st.columns(2)
+with img_col1:
     _safe_image(["acai_cool.png", "bowl_funny.png", "acai_funny.png"], use_container_width=True)
-   # nueva imagen
-    with img_col2:
-        _safe_image("kiosk.jpg", use_container_width=True)         # kiosco
+with img_col2:
+    _safe_image("kiosk.jpg", use_container_width=True)
+        # kiosco
 
     # Ajuste visual para igualar tamaño (kiosco achicado al mismo alto)
     st.markdown("""

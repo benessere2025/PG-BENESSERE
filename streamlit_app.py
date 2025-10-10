@@ -22,7 +22,8 @@ MENU_PATH = ROOT / "data" / "menu.json"
 st.set_page_config(page_title="Benessere", page_icon=str(IMG / "logo.jpg"), layout="wide")
 
 # --------------------------- Estilos ----------------------------
-family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0f0718; --card:#1b0f2b; --border:#2a1b40; --text:#ECE8F7; --muted:#B7A8D9; --accent:#7C4DFF;
@@ -55,24 +56,22 @@ p { color: var(--muted); }
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
 }
 
 /* Avatar equipo */
-.team-card img{
+.team-card img {
   border-radius: 18px;
   width: 100%;
   height: 220px;
   object-fit: cover;
-  border: 1px solid var(--border);
+  border:1px solid var(--border);
 }
 
 /* Limpieza UI Streamlit */
-#MainMenu, header, footer {
-  visibility: hidden;
-}
+#MainMenu, header, footer {visibility: hidden;}
 </style>
-""", unsafe_allow_html=True
+""", unsafe_allow_html=True)
 # ------------------------- Utilidades ---------------------------
 def _find_image(filename: str):
     candidates = [

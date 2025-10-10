@@ -521,6 +521,7 @@ else:
     st.sidebar.info("Inicia sesión para usar Recompensas y Canjeo.")
 
 # -------------------------- Páginas -----------------------------
+# -------------------------- Páginas -----------------------------
 if page == "Inicio":
     # ----- Encabezado -----
     col1, col2 = st.columns([1.2, 1])
@@ -542,6 +543,31 @@ if page == "Inicio":
                 f'<div class="card"><h4>{it["name"]}</h4><p>{it["desc"]}</p>'
                 f'<span class="price">Bs {it["price"]:.2f}</span></div>',
                 unsafe_allow_html=True,
+            )
+
+    # ----- Nuestro espacio y producto -----
+    st.markdown("### Nuestro espacio y producto")
+
+    img_col1, img_col2 = st.columns(2)
+    with img_col1:
+        _safe_image("bowl_funny.png", use_container_width=True)   # nueva imagen
+    with img_col2:
+        _safe_image("kiosk.jpg", use_container_width=True)         # kiosco
+
+    # Ajuste visual para igualar tamaño (kiosco achicado al mismo alto)
+    st.markdown("""
+    <style>
+    div[data-testid="column"] img {
+        height: 360px !important;
+        object-fit: cover !important;
+        border-radius: 18px !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+elif page == "Repertorio":
+
             )
 
 # ----- Nuestro espacio y producto -----

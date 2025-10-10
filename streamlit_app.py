@@ -55,20 +55,22 @@ p { color: var(--muted); }
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
 }
 
 /* Avatar equipo */
-.team-card img {
+.team-card img{
   border-radius: 18px;
   width: 100%;
   height: 220px;
   object-fit: cover;
-  border:1px solid var(--border);
+  border: 1px solid var(--border);
 }
 
 /* Limpieza UI Streamlit */
-#MainMenu, header, footer {visibility: hidden;}
+#MainMenu, header, footer {
+  visibility: hidden;
+}
 </style>
 """, unsafe_allow_html=True
 # ------------------------- Utilidades ---------------------------

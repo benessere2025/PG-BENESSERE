@@ -108,24 +108,25 @@ section[data-testid="stSidebar"] {
 """, unsafe_allow_html=True)
 
 # ------------------------- Utilidades ---------------------------
-def _find_image(filename: str):
-    candidates = [
-        IMG / filename,
-        Path.cwd() / "static" / "images" / filename,
-        ROOT / "static" / "images" / filename,
-        Path(filename),
-    ]
-    for p in candidates:
-        if p.exists():
-            return str(p)
-    return None
-
-def _safe_image(filename: str, **kwargs):
-    p = _find_image(filename)
-    if p:
-        st.image(p, **kwargs)
-    else:
-        st.info(f"[imagen no encontrada: {filename}]")
+# ✅ Reemplazá tu _safe_image por esta
+def _safe_image(filename, **kwargs):
+    """
+    Muestra una imagen. Acepta:
+      - str: nombre único de archivo
+      - list/tuple[str]: nombres candidatos (usa el primero que exista)
+    """
+    candidates = filename if isinstance(filename, (list, tuple)) else [filename]
+    for name in candidates:
+        p = _find_image(name)
+        if p:
+            st.image(p, **kwargs)
+            return
+    # Si ninguna existe, mostrar aviso
+    try:
+        missing = ", ".join(map(str, candidates))
+    except Exception:
+        missing = str(candidates)
+    st.info(f"[imagen no encontrada: {missing}]")
 
 def load_menu():
     candidates = [MENU_PATH, Path.cwd() / "data" / "menu.json", ROOT / "data" / "menu.json"]
